@@ -19,6 +19,7 @@ from ..services.cache_service import (
 )
 from ..services.rule_engine import run_placeholder_scoring
 from ..services.history_service import save_review_report, get_review_history
+from ..services.pv_engine import run_plain_logic_analysis, PVPlainLogicReport
 
 router = APIRouter(prefix="/maintainer", tags=["Maintainer"])
 
@@ -93,3 +94,34 @@ async def score_maintainer_data(fetch_response: MaintainerFetchResponse):
         pass  # Non-fatal if persistence encounters an issue
 
     return score_response
+
+
+@router.post("/analyze", response_model=PVPlainLogicReport)
+async def analyze_maintainer_prs(fetch_response: MaintainerFetchResponse):
+    """
+    **Sub-step A — Plain-Logic Results Only**
+
+    Accepts the output of `POST /maintainer/fetch` and applies four
+    deterministic (no-AI) verification rules to every candidate PR:
+
+    - **PV-04 Test Presence** – were test files added or maintained?
+    - **PV-05 CI Status** – read-only check conclusions (never executes code).
+      Failing CI is surfaced as a visible `critical_flag`, not an auto-rejection.
+    - **PV-08 Duplicate & Overlap** – file and meaningful-line overlap across PRs
+      (neutral wording, documented formula, `insufficient_evidence` on missing patches).
+    - **PV-SCOPE Scope Pass** – noisy files (lockfiles, build artifacts) labelled
+      "noisy"; changed files cross-referenced against issue text for scope.
+
+    **This endpoint returns plain-logic results only.**
+    No AI analysis. No requirement coverage. No ranking.
+    Sub-step B (Qwen requirement coverage) and Sub-step C (ranking) are separate.
+
+    Every result includes: rule_id, status, score, confidence, evidence list
+    (with source/reference/detail), recommended_action, and metadata
+    (rule_version, executed_at, execution_type).
+    """
+    try:
+        report = await run_plain_logic_analysis(fetch_response)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"PV analysis error: {str(e)}")
+    return report

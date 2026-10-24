@@ -6,12 +6,19 @@ from datetime import datetime, timezone
 from ...models import IssueData, PRData
 
 class RuleStatus(str, Enum):
+    # Legacy statuses (existing rules)
     PASS = "pass"
     FAIL = "fail"
     SUPPORTED = "supported"
     BLOCKER = "blocker"
     UNKNOWN = "unknown"
+    # PV spec-aligned statuses
+    SATISFIED = "satisfied"
+    PARTIALLY_SATISFIED = "partially_satisfied"
+    CONCERN = "concern"
+    NOT_EVALUATED = "not_evaluated"
     INSUFFICIENT_EVIDENCE = "insufficient_evidence"
+    CRITICAL_FLAG = "critical_flag"  # Failing CI visible flag (not a rejection)
 
 class EvidenceItem(BaseModel):
     source: str = Field(description="Origin of evidence e.g. 'diff', 'ci_check', 'issue_body', 'file'")
