@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maintainer Mode — Contrib</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="mentor.css">
+</head>
+<body class="clean-app-bg">
+  <!-- Top Navigation Header -->
+  <header class="app-header">
+    <div class="app-container header-flex">
+      <a href="index.html" class="brand-logo" aria-label="Contrib Home">
+        <span class="logo-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </span>
+        <span class="brand-name">Contrib</span>
+      </a>
+
+      <div class="header-right">
+        <span class="mode-pill-badge">Maintainer mode</span>
+        <a href="beginner.html" class="mode-switch-link">Switch to Beginner</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <div class="app-container">
+      <!-- 3-Pill Stepper -->
+      <nav class="pill-stepper" aria-label="Progress">
+        <div class="stepper-pill current" id="step-btn-1">
+          <span class="pill-badge">1</span>
+          <span class="pill-text-group">
+            <span class="pill-title">Paste links</span>
+            <span class="pill-meta">Current</span>
+          </span>
+        </div>
+
+        <div class="stepper-pill next" id="step-btn-2">
+          <span class="pill-badge">2</span>
+          <span class="pill-text-group">
+            <span class="pill-title">Analyze</span>
+            <span class="pill-meta">Next</span>
+          </span>
+        </div>
+
+        <div class="stepper-pill next" id="step-btn-3">
+          <span class="pill-badge">3</span>
+          <span class="pill-text-group">
+            <span class="pill-title">Review the results</span>
+            <span class="pill-meta">Next</span>
+          </span>
+        </div>
+      </nav>
+
+      <!-- STEP 1: Paste Links (Matching screenshot exactly) -->
+      <div class="step-view" id="view-step-1">
+        <h1 class="main-heading">Paste links</h1>
+        <p class="main-subheading max-680">
+          Give Contrib the issue and the pull requests that claim to fix it. It reads them, checks the evidence and ranks them with transparent rules.
+        </p>
+
+        <div class="paste-links-card">
+          <form id="form-paste-links">
+            <!-- Issue URL -->
+            <div class="input-block">
+              <label for="issue-url-input" class="card-label">Issue URL</label>
+              <input type="url" id="issue-url-input" class="mono-input full-width" value="https://github.com/example-org/httpkit/issues/1042" required autocomplete="off" spellcheck="false">
+            </div>
+
+            <!-- Pull Request URLs -->
+            <div class="input-block mt-24">
+              <label class="card-label">Pull request URLs</label>
+              
+              <div class="pr-fields-stack">
+                <div class="pr-field-item">
+                  <span class="field-sublabel">Pull request 1</span>
+                  <input type="url" class="mono-input full-width pr-url" value="https://github.com/example-org/httpkit/pull/231" required autocomplete="off" spellcheck="false">
+                </div>
+
+                <div class="pr-field-item">
+                  <span class="field-sublabel">Pull request 2</span>
+                  <input type="url" class="mono-input full-width pr-url" value="https://github.com/example-org/httpkit/pull/229" autocomplete="off" spellcheck="false">
+                </div>
+
+                <div class="pr-field-item">
+                  <span class="field-sublabel">Pull request 3</span>
+                  <input type="url" class="mono-input full-width pr-url" value="https://github.com/example-org/httpkit/pull/236" autocomplete="off" spellcheck="false">
+                </div>
+
+                <div class="pr-field-item">
+                  <span class="field-sublabel">Pull request 4</span>
+                  <input type="url" class="mono-input full-width pr-url" value="https://github.com/example-org/httpkit/pull/225" autocomplete="off" spellcheck="false">
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons Row -->
+            <div class="card-actions-row">
+              <button type="submit" class="btn btn-black" id="btn-analyze-prs">
+                Analyze pull requests <span class="arrow">→</span>
+              </button>
+              <button type="button" class="btn btn-outline" id="btn-sample-links">
+                Use sample links
+              </button>
+              <span class="prototype-note">
+                Prototype: results below are sample data
+              </span>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- STEP 2: Analyze Ticker (Interactive automated evidence extraction) -->
+      <div class="step-view" id="view-step-2" style="display: none;">
+        <h1 class="main-heading">Analyze</h1>
+        <p class="main-subheading max-680">
+          Collecting repository evidence, inspecting code diffs, running test verification checks and validating author claims.
+        </p>
+
+        <div class="analysis-status-card">
+          <div class="analysis-ticker">
+            <div class="ticker-item completed" id="tick-1">✓ Fetched issue #1042 requirements and scope specifications</div>
+            <div class="ticker-item completed" id="tick-2">✓ Inspected git diff hunks across 4 candidate pull requests</div>
+            <div class="ticker-item in-progress" id="tick-3">⚙ Validating description claims against actual lines of code...</div>
+            <div class="ticker-item pending" id="tick-4">○ Ranking candidate PRs and surfacing blockers</div>
+          </div>
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="analysis-progress"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3: Review the Results (Ranked PR Scorecard & Diff Inspector) -->
+      <div class="step-view" id="view-step-3" style="display: none;">
+        <div class="step-view-header">
+          <div>
+            <h1 class="main-heading">Review the results</h1>
+            <p class="main-subheading max-680">
+              The top candidate PRs with scores, tags, supporting evidence and a concise explanation of each ranking.
+            </p>
+          </div>
+          <button class="btn btn-outline btn-sm" id="btn-back-to-input">← Edit links</button>
+        </div>
+
+        <!-- PR Scorecards Stack -->
+        <div class="scorecards-stack">
+          <!-- PR 1 -->
+          <div class="pr-result-card active" data-pr="231">
+            <div class="pr-card-header">
+              <div class="pr-title-group">
+                <span class="rank-tag rank-1">Rank #1</span>
+                <span class="pr-label">PR #231 · Add retry to webhook sender</span>
+                <span class="pr-by">by @alexdev</span>
+              </div>
+              <div class="pr-score-group">
+                <span class="score-large">92</span>
+                <span class="score-label">Score</span>
+              </div>
+            </div>
+
+            <div class="verdict-points-list">
+              <div class="verdict-point">
+                <span class="status-pill pill-supported">✓ Supported</span>
+                <span class="point-claim">Adds tests for the retry path</span>
+                <span class="point-evidence">tests/test_sender.py:42-71</span>
+              </div>
+              <div class="verdict-point">
+                <span class="status-pill pill-supported">✓ Supported</span>
+                <span class="point-claim">Only touches the sender module</span>
+                <span class="point-evidence">3 files changed, all under src/sender/</span>
+              </div>
+              <div class="verdict-point">
+                <span class="status-pill pill-unknown">? Unknown</span>
+                <span class="point-claim">Stays backward compatible</span>
+                <span class="point-evidence">No evidence found in the diff or tests. Needs human review.</span>
+              </div>
+              <div class="verdict-point">
+                <span class="status-pill pill-blocker">✕ Blocker</span>
+                <span class="point-claim">Required check "lint" is failing</span>
+                <span class="point-evidence">check_run/lint · conclusion: failure</span>
+              </div>
+            </div>
+
+            <div class="pr-card-footer">
+              <button class="btn btn-black btn-sm view-inspector-btn" data-pr="231">Inspect Diff & Proof</button>
+              <button class="btn btn-outline btn-sm export-markdown-btn" data-pr="231">Copy Review Markdown</button>
+            </div>
+          </div>
+
+          <!-- PR 2 -->
+          <div class="pr-result-card" data-pr="229">
+            <div class="pr-card-header">
+              <div class="pr-title-group">
+                <span class="rank-tag rank-2">Rank #2</span>
+                <span class="pr-label">PR #229 · Implement exponential retry loop</span>
+                <span class="pr-by">by @coder99</span>
+              </div>
+              <div class="pr-score-group">
+                <span class="score-large">76</span>
+                <span class="score-label">Score</span>
+              </div>
+            </div>
+
+            <div class="verdict-points-list">
+              <div class="verdict-point">
+                <span class="status-pill pill-supported">✓ Supported</span>
+                <span class="point-claim">Implements retry loop logic</span>
+                <span class="point-evidence">src/flask/dispatcher.py:90-130</span>
+              </div>
+              <div class="verdict-point">
+                <span class="status-pill pill-blocker">✕ Blocker</span>
+                <span class="point-claim">Claims zero dependency changes</span>
+                <span class="point-evidence">Diff modifies pyproject.toml adding tenacity>=8.0</span>
+              </div>
+            </div>
+
+            <div class="pr-card-footer">
+              <button class="btn btn-outline btn-sm view-inspector-btn" data-pr="229">Inspect Diff & Proof</button>
+              <button class="btn btn-outline btn-sm export-markdown-btn" data-pr="229">Copy Review Markdown</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inline Diff Inspector -->
+        <div class="diff-viewer-card" id="diff-section">
+          <div class="diff-title-bar">
+            <span class="diff-title" id="diff-title">Evidence Proof Inspector — PR #231</span>
+            <span class="diff-file-tag">tests/test_sender.py:42-71</span>
+          </div>
+          <div class="diff-code-pre">
+<div class="code-line context"><span>39</span> def test_webhook_standard_dispatch(client):</div>
+<div class="code-line context"><span>40</span>     response = client.send_event(payload={"type": "ping"})</div>
+<div class="code-line context"><span>41</span>     assert response.status_code == 200</div>
+<div class="code-line add highlight"><span>42</span> + def test_webhook_retry_on_429_backoff(mock_endpoint): <span class="proof-badge">✓ Cited by Contrib: test proof</span></div>
+<div class="code-line add"><span>43</span> +     """Verifies exponential retry delays when receiving HTTP 429."""</div>
+<div class="code-line add"><span>44</span> +     mock_endpoint.set_responses([429, 429, 200])</div>
+<div class="code-line add"><span>45</span> +     dispatcher = WebhookDispatcher(max_retries=3, backoff_factor=1.5)</div>
+<div class="code-line add"><span>46</span> +     result = dispatcher.send_with_retry("https://api.example.com/hook")</div>
+<div class="code-line add"><span>47</span> +     assert result.attempts == 3</div>
+<div class="code-line add"><span>48</span> +     assert result.status_code == 200</div>
+          </div>
+        </div>
+
+        <div class="maintainer-notice-box">
+          <strong>Needs human review.</strong> Contrib advises and prioritizes. It never automatically merges or rejects a pull request.
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="mentor.js"></script>
+</body>
+</html>

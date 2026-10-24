@@ -1,11 +1,344 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contrib — Evidence-driven Open-Source Contribution</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <!-- Header / Navigation -->
+  <header class="site-header">
+    <div class="container header-container">
+      <a href="#" class="brand-logo" aria-label="Contrib Home">
+        <span class="logo-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </span>
+        <span class="brand-name">Contrib</span>
+      </a>
 
+      <nav class="nav-links">
+        <a href="#how-it-works" class="nav-link">How it works</a>
+        <a href="#why-evidence" class="nav-link">Why evidence</a>
+        <a href="LICENSE" class="badge-link" target="_blank" rel="noopener">Open source · Apache 2.0</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="container hero-grid">
+        <!-- Hero Left -->
+        <div class="hero-content">
+          <div class="eyebrow">EVIDENCE-DRIVEN OPEN-SOURCE CONTRIBUTION</div>
+          <h1 class="hero-title">
+            Find the right issue.<br>
+            Verify the right PR.
+          </h1>
+          <p class="hero-description">
+            Help developers make their first contribution, and help maintainers review pull requests with evidence instead of guesswork.
+          </p>
+
+          <div class="hero-cards-grid">
+            <!-- Beginner Card -->
+            <div class="action-card" id="beginner-card">
+              <div class="card-icon sprout-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 22v-9"></path>
+                  <path d="M12 13a5 5 0 0 0-5-5H3a9 9 0 0 0 9 9Z"></path>
+                  <path d="M12 13a5 5 0 0 1 5-5h4a9 9 0 0 1-9 9Z"></path>
+                </svg>
+              </div>
+              <h2 class="card-title">I'm a Beginner</h2>
+              <p class="card-desc">
+                Enter your GitHub username and get matched issues, an implementation plan and a learning plan.
+              </p>
+              <a href="beginner.html" class="card-action-link" id="start-beginner-btn">
+                <span>Start finding issues</span>
+                <span class="arrow">→</span>
+              </a>
+            </div>
+
+            <!-- Maintainer Card -->
+            <div class="action-card" id="maintainer-card">
+              <div class="card-icon branch-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="6" cy="18" r="3"></circle>
+                  <circle cx="6" cy="6" r="3"></circle>
+                  <circle cx="18" cy="6" r="3"></circle>
+                  <path d="M6 9v6"></path>
+                  <path d="M18 9a9 9 0 0 1-9 9"></path>
+                </svg>
+              </div>
+              <h2 class="card-title">I'm a Maintainer</h2>
+              <p class="card-desc">
+                Compare pull requests using evidence and transparent rules.
+              </p>
+              <a href="mentor.html" class="card-action-link" id="start-maintainer-btn">
+                <span>Compare PRs</span>
+                <span class="arrow">→</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hero Right: Sample Verdict Card -->
+        <div class="hero-verdict-wrapper">
+          <div class="verdict-card" id="sample-verdict-card">
+            <div class="verdict-header">
+              <div class="verdict-title">
+                <strong>PR #214 · Add retry to webhook sender</strong>
+              </div>
+              <span class="verdict-badge-label">Sample verdict</span>
+            </div>
+
+            <div class="verdict-items-list">
+              <!-- Item 1: Supported -->
+              <div class="verdict-item" data-status="supported">
+                <div class="verdict-item-header">
+                  <span class="status-pill pill-supported">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Supported
+                  </span>
+                  <span class="claim-text">Adds tests for the retry path</span>
+                </div>
+                <div class="evidence-ref">tests/test_sender.py:42-71</div>
+              </div>
+
+              <!-- Item 2: Supported -->
+              <div class="verdict-item" data-status="supported">
+                <div class="verdict-item-header">
+                  <span class="status-pill pill-supported">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Supported
+                  </span>
+                  <span class="claim-text">Only touches the sender module</span>
+                </div>
+                <div class="evidence-ref">3 files changed, all under src/sender/</div>
+              </div>
+
+              <!-- Item 3: Unknown -->
+              <div class="verdict-item" data-status="unknown">
+                <div class="verdict-item-header">
+                  <span class="status-pill pill-unknown">
+                    <span class="pill-symbol">?</span>
+                    Unknown
+                  </span>
+                  <span class="claim-text">Stays backward compatible</span>
+                </div>
+                <div class="evidence-ref">No evidence found in the diff or tests. Needs human review.</div>
+              </div>
+
+              <!-- Item 4: Blocker -->
+              <div class="verdict-item" data-status="blocker">
+                <div class="verdict-item-header">
+                  <span class="status-pill pill-blocker">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                    Blocker
+                  </span>
+                  <span class="claim-text">Required check "lint" is failing</span>
+                </div>
+                <div class="evidence-ref">check_run/lint · conclusion: failure</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Two modes, one evidence engine Section -->
+    <section class="section modes-section" id="how-it-works">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Two modes, one evidence engine</h2>
+          <p class="section-subtitle">
+            Both modes run on the same pipeline, so every recommendation points back to something you can open and check.
+          </p>
+        </div>
+
+        <div class="modes-grid">
+          <!-- Beginner mode Card -->
+          <div class="mode-card">
+            <h3 class="mode-title">Beginner mode</h3>
+            <ol class="steps-list">
+              <li class="step-item">
+                <div class="step-number">1</div>
+                <div class="step-body">
+                  <h4 class="step-heading">Enter your GitHub username</h4>
+                  <p class="step-text">Contrib reads your public repos, languages and activity, then you set weekly hours, goals and learning pace.</p>
+                </div>
+              </li>
+              <li class="step-item">
+                <div class="step-number">2</div>
+                <div class="step-body">
+                  <h4 class="step-heading">Pick an issue</h4>
+                  <p class="step-text">Three recommended issues, each with a personalized explanation of why it fits.</p>
+                </div>
+              </li>
+              <li class="step-item">
+                <div class="step-number">3</div>
+                <div class="step-body">
+                  <h4 class="step-heading">Get your plan</h4>
+                  <p class="step-text">An implementation checklist, a learning plan and a suggested starting point.</p>
+                </div>
+              </li>
+            </ol>
+            <div class="mode-card-divider"></div>
+            <div class="mode-card-footer">
+              <p><strong>After the PR:</strong> generate a feedback report on what went well and what to improve, based on the review and CI evidence available.</p>
+            </div>
+          </div>
+
+          <!-- Maintainer mode Card -->
+          <div class="mode-card">
+            <h3 class="mode-title">Maintainer mode</h3>
+            <ol class="steps-list">
+              <li class="step-item">
+                <div class="step-number">1</div>
+                <div class="step-body">
+                  <h4 class="step-heading">Paste links</h4>
+                  <p class="step-text">Provide the issue URL and the PR URLs to evaluate.</p>
+                </div>
+              </li>
+              <li class="step-item">
+                <div class="step-number">2</div>
+                <div class="step-body">
+                  <h4 class="step-heading">Analyze</h4>
+                  <p class="step-text">Collect repository evidence, inspect changes, run applicable checks and show progress.</p>
+                </div>
+              </li>
+              <li class="step-item">
+                <div class="step-number">3</div>
+                <div class="step-body">
+                  <h4 class="step-heading">Review the results</h4>
+                  <p class="step-text">The top three PRs with scores, tags, supporting evidence and a concise explanation of each ranking.</p>
+                </div>
+              </li>
+            </ol>
+            <div class="mode-card-divider"></div>
+            <div class="mode-card-footer">
+              <p><strong>Needs human review.</strong> Contrib advises and prioritizes. It never automatically merges or rejects a pull request.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dark Section: What makes Contrib original -->
+    <section class="section dark-section" id="why-evidence">
+      <div class="container">
+        <div class="section-header dark-header">
+          <h2 class="section-title text-white">What makes Contrib original</h2>
+          <p class="section-subtitle text-muted-blue">
+            The differentiator is not which model we use. It is the system built around it.
+          </p>
+        </div>
+
+        <div class="original-grid">
+          <!-- Card 01 -->
+          <div class="original-card">
+            <div class="original-num">01</div>
+            <h3 class="original-title">Evidence collection</h3>
+            <p class="original-desc">
+              GitHub API · repository files · diffs · tests · reviews
+            </p>
+          </div>
+
+          <!-- Card 02 -->
+          <div class="original-card">
+            <div class="original-num">02</div>
+            <h3 class="original-title">Open-weight AI + embeddings</h3>
+            <p class="original-desc">
+              Interpret issues, understand code and match relevant information.
+            </p>
+          </div>
+
+          <!-- Card 03 -->
+          <div class="original-card">
+            <div class="original-num">03</div>
+            <h3 class="original-title">Contrib rule engine</h3>
+            <p class="original-desc">
+              Hard blockers · explicit scoring · evidence validation
+            </p>
+          </div>
+
+          <!-- Card 04 (Highlighted with teal border) -->
+          <div class="original-card highlighted-card">
+            <div class="original-num">04</div>
+            <h3 class="original-title">Evidence-citing verdicts</h3>
+            <p class="original-desc">
+              Scores · reasons · file and line references · unknowns · human review
+            </p>
+          </div>
+        </div>
+
+        <div class="principles-row">
+          <div class="principle-col">
+            <p>
+              <strong>Unknown beats invented certainty.</strong> If a model says a PR implements a requirement, the validator checks that the cited evidence exists and supports the claim. If evidence is missing, the verdict says Unknown.
+            </p>
+          </div>
+          <div class="principle-col">
+            <p>
+              <strong>Measured, not assumed.</strong> Rankings are compared with human assessments on a small labeled set of issues and PRs, scoring ranking quality and evidence accuracy.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Interactive Modal for Workflow Preview & Next Step Alignment -->
+  <div class="modal-backdrop" id="flow-modal" aria-hidden="true" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-badge" id="modal-mode-badge">Beginner Flow</div>
+        <button class="modal-close" id="modal-close-btn" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal-content" id="modal-body-content">
+        <!-- Content will be injected dynamically by app.js -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="modal-dismiss-btn">Close Preview</button>
+        <button class="btn btn-primary" id="modal-action-btn">Proceed to Configure</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Evidence Detail Drawer/Toast (for clicking verdict items) -->
+  <div class="toast-notification" id="toast-notify" role="alert" aria-live="polite">
+    <div class="toast-icon">🔍</div>
+    <div class="toast-body">
+      <div class="toast-title" id="toast-title">Evidence Verified</div>
+      <div class="toast-message" id="toast-message">Checking citation in git diff...</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-left">
+        Contrib · Apache License 2.0 · Model licenses apply separately
+      </div>
+      <div class="footer-right">
+        Prototype with sample data
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
 </body>
 </html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beginner Mode — Contrib</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="beginner.css">
+</head>
+<body class="clean-app-bg">
+  <!-- Top Navigation Header -->
+  <header class="app-header">
+    <div class="app-container header-flex">
+      <a href="index.html" class="brand-logo" aria-label="Contrib Home">
+        <span class="logo-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </span>
+        <span class="brand-name">Contrib</span>
+      </a>
+
+      <div class="header-right">
+        <span class="mode-pill-badge">Beginner mode</span>
+        <a href="mentor.html" class="mode-switch-link">Switch to Maintainer</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <div class="app-container">
+      <!-- 3-Pill Stepper -->
+      <nav class="pill-stepper" aria-label="Progress">
+        <div class="stepper-pill current" id="step-btn-1">
+          <span class="pill-badge">1</span>
+          <span class="pill-text-group">
+            <span class="pill-title">Connect GitHub</span>
+            <span class="pill-meta">Current</span>
+          </span>
+        </div>
+
+        <div class="stepper-pill next" id="step-btn-2">
+          <span class="pill-badge">2</span>
+          <span class="pill-text-group">
+            <span class="pill-title">Pick an issue</span>
+            <span class="pill-meta">Next</span>
+          </span>
+        </div>
+
+        <div class="stepper-pill next" id="step-btn-3">
+          <span class="pill-badge">3</span>
+          <span class="pill-text-group">
+            <span class="pill-title">Get your plan</span>
+            <span class="pill-meta">Next</span>
+          </span>
+        </div>
+      </nav>
+
+      <!-- STEP 1: Connect GitHub (Matching screenshot exactly) -->
+      <div class="step-view" id="view-step-1">
+        <div class="step-1-grid">
+          <!-- Left Column -->
+          <div class="step-1-left">
+            <h1 class="main-heading">
+              Start with your GitHub<br>username
+            </h1>
+            <p class="main-subheading">
+              Contrib reads your public repositories, languages and activity, then suggests issues you can finish and builds your implementation and learning plan.
+            </p>
+
+            <div class="content-card">
+              <form id="form-connect-github">
+                <label for="gh-username-input" class="card-label">GitHub username</label>
+                <div class="input-action-row">
+                  <div class="input-prefix-box">
+                    <span class="prefix-at">@</span>
+                    <input type="text" id="gh-username-input" class="mono-input" placeholder="octocat" value="octocat" required autocomplete="off" spellcheck="false">
+                  </div>
+                  <button type="submit" class="btn btn-black" id="btn-analyze-github">
+                    Analyze my GitHub <span class="arrow">→</span>
+                  </button>
+                </div>
+                <p class="card-hint">
+                  Public data only. Contrib never asks for a password or write access, and private repositories stay invisible, so they count as unknown.
+                </p>
+              </form>
+            </div>
+          </div>
+
+          <!-- Right Column: What Contrib reads -->
+          <div class="step-1-right">
+            <div class="info-card">
+              <h2 class="info-card-title">What Contrib reads</h2>
+              
+              <ul class="reads-list">
+                <li class="reads-item">
+                  <span class="code-pill">repos</span>
+                  <span class="reads-desc">Languages, topics and project types you have built</span>
+                </li>
+                <li class="reads-item">
+                  <span class="code-pill">events</span>
+                  <span class="reads-desc">How recently and how often you push code</span>
+                </li>
+                <li class="reads-item">
+                  <span class="code-pill">pulls</span>
+                  <span class="reads-desc">Pull requests you have already opened or merged elsewhere</span>
+                </li>
+                <li class="reads-item">
+                  <span class="code-pill">tests</span>
+                  <span class="reads-desc">Whether your repos use tests, CI and linters</span>
+                </li>
+              </ul>
+
+              <div class="info-card-divider"></div>
+
+              <p class="info-card-footer">
+                Everything Contrib concludes about you cites one of these sources. Anything it cannot see is marked Unknown.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: Pick an Issue (Interactive recommendations) -->
+      <div class="step-view" id="view-step-2" style="display: none;">
+        <div class="step-view-header">
+          <div>
+            <h1 class="main-heading">Pick an issue</h1>
+            <p class="main-subheading">
+              Three issues matched to your languages, test activity, and available hours. Every recommendation cites checkable evidence.
+            </p>
+          </div>
+          <button class="btn btn-outline btn-sm" id="btn-back-to-step1">← Modify GitHub user</button>
+        </div>
+
+        <div class="issues-cards-stack">
+          <!-- Issue 1 -->
+          <div class="issue-recommend-card">
+            <div class="issue-header-row">
+              <div class="issue-repo-meta">
+                <span class="repo-badge">pallets/flask</span>
+                <span class="issue-num">#5412</span>
+                <span class="fit-pill">98% Fit Score</span>
+              </div>
+              <span class="time-est">2–5 hours est.</span>
+            </div>
+            <h3 class="issue-name">Add exponential retry backoff to async webhook dispatch</h3>
+            <p class="issue-desc">
+              When external endpoints return 429/503 status codes, dispatcher abruptly fails rather than retrying with exponential backoff.
+            </p>
+            <div class="evidence-pills-row">
+              <span class="ev-pill">✓ Verified reproduction script in comment #2</span>
+              <span class="ev-pill">✓ Scope: 2 files (dispatcher.py, test_dispatcher.py)</span>
+              <span class="ev-pill">✓ Maintainer active 3h ago</span>
+              <span class="ev-pill">✓ Conflict check: 0 open PRs</span>
+            </div>
+            <div class="issue-card-actions">
+              <button class="btn btn-black btn-select-issue" data-issue-id="1">
+                Select this issue & get plan →
+              </button>
+            </div>
+          </div>
+
+          <!-- Issue 2 -->
+          <div class="issue-recommend-card">
+            <div class="issue-header-row">
+              <div class="issue-repo-meta">
+                <span class="repo-badge">pallets/flask</span>
+                <span class="issue-num">#5390</span>
+                <span class="fit-pill">94% Fit Score</span>
+              </div>
+              <span class="time-est">1–3 hours est.</span>
+            </div>
+            <h3 class="issue-name">Add unit tests for edge case timeouts in blueprint routing</h3>
+            <p class="issue-desc">
+              Edge condition where custom timeout parameters on nested blueprints fail to propagate to handler contexts. Missing regression test.
+            </p>
+            <div class="evidence-pills-row">
+              <span class="ev-pill">✓ Existing test pattern in tests/test_blueprints.py</span>
+              <span class="ev-pill">✓ Scope: tests only (0 prod code changes)</span>
+              <span class="ev-pill">✓ Active maintainer response</span>
+              <span class="ev-pill">✓ Conflict check: clear</span>
+            </div>
+            <div class="issue-card-actions">
+              <button class="btn btn-black btn-select-issue" data-issue-id="2">
+                Select this issue & get plan →
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3: Get your Plan (Implementation roadmap) -->
+      <div class="step-view" id="view-step-3" style="display: none;">
+        <div class="step-view-header">
+          <div>
+            <h1 class="main-heading">Get your plan</h1>
+            <p class="main-subheading">
+              An implementation checklist, learning references, and the evidence Contrib will verify when you submit your PR.
+            </p>
+          </div>
+          <button class="btn btn-outline btn-sm" id="btn-back-to-step2">← Choose another issue</button>
+        </div>
+
+        <div class="plan-grid">
+          <div class="plan-card-left">
+            <div class="plan-banner">
+              <span class="repo-badge">pallets/flask #5412</span>
+              <h3 class="plan-issue-title" id="plan-title">Add exponential retry backoff to async webhook dispatch</h3>
+            </div>
+
+            <div class="checklist-box">
+              <div class="checklist-title-row">
+                <h4 class="box-title">Implementation Checklist</h4>
+                <span class="checklist-status" id="checklist-counter">0 of 4 completed</span>
+              </div>
+              <div class="checklist-group">
+                <label class="check-row">
+                  <input type="checkbox" class="plan-cb">
+                  <span>1. Fork, clone & install dependencies (<code>pip install -e ".[dev]"</code>)</span>
+                </label>
+                <label class="check-row">
+                  <input type="checkbox" class="plan-cb">
+                  <span>2. Locate <code>src/flask/dispatcher.py:84</code> and implement exponential delay loop</span>
+                </label>
+                <label class="check-row">
+                  <input type="checkbox" class="plan-cb">
+                  <span>3. Add unit test assertions in <code>tests/test_dispatcher.py:42-71</code></span>
+                </label>
+                <label class="check-row">
+                  <input type="checkbox" class="plan-cb">
+                  <span>4. Verify linters pass (<code>ruff check .</code> and <code>pytest</code>)</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="plan-card-right">
+            <div class="info-card">
+              <h3 class="info-card-title">Codebase References</h3>
+              <ul class="reads-list">
+                <li class="reads-item">
+                  <span class="code-pill">code</span>
+                  <span class="reads-desc"><code>src/flask/dispatcher.py:84</code></span>
+                </li>
+                <li class="reads-item">
+                  <span class="code-pill">tests</span>
+                  <span class="reads-desc"><code>tests/test_dispatcher.py:42-71</code></span>
+                </li>
+              </ul>
+              <div class="info-card-divider"></div>
+              <p class="info-card-footer">
+                <strong>After the PR:</strong> Contrib verifies test assertions, module boundary confinement, and clean CI passes.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="beginner.js"></script>
+</body>
+</html>
