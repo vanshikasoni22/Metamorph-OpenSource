@@ -2,10 +2,6 @@
   "name": "contrib",
   "version": "0.1.0",
   "description": "Evidence-driven agent for contributor issue discovery and maintainer PR review",
-  "scripts": {
-    "dev": "node server.js",
-    "start": "node server.js"
-  },
   "keywords": [
     "open-source",
     "evidence-driven",
@@ -14,5 +10,6 @@
     "issue-discovery"
   ],
   "author": "",
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "note": "The backend is Python/FastAPI. See render.yaml and backend/requirements.txt. This package.json exists for project metadata only."
 }
