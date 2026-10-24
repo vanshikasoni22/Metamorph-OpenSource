@@ -1,6 +1,6 @@
 /**
  * Contrib — Beginner Mode Controller (beginner.js)
- * Matching the exact 3-step pill stepper workflow.
+ * Connected to Contrib backend API.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -19,19 +19,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnAnalyze = document.getElementById('btn-analyze-github');
   const btnBackStep1 = document.getElementById('btn-back-to-step1');
   const btnBackStep2 = document.getElementById('btn-back-to-step2');
-  const planTitle = document.getElementById('plan-title');
+  const ghUsernameInput = document.getElementById('gh-username-input');
 
-  // Checklist
-  const checkboxes = document.querySelectorAll('.plan-cb');
+  // Results containers
+  const issuesContainer = document.querySelector('.issues-cards-stack');
+  const planTitle = document.getElementById('plan-title');
+  const checklistBox = document.querySelector('.checklist-group');
   const checklistCounter = document.getElementById('checklist-counter');
+  const codebaseRefList = document.querySelector('.plan-card-right .reads-list');
+
+  let currentBeginnerData = null;
+  let selectedIssue = null;
 
   function setStep(stepNum) {
-    // Hide all
     viewStep1.style.display = 'none';
     viewStep2.style.display = 'none';
     viewStep3.style.display = 'none';
 
-    // Update Pills
     [stepBtn1, stepBtn2, stepBtn3].forEach(btn => {
       btn.className = 'stepper-pill next';
       btn.querySelector('.pill-meta').textContent = 'Next';
@@ -60,18 +64,146 @@ document.addEventListener('DOMContentLoaded', () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // Submit Step 1 -> Step 2
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  function renderMatchedIssues(issues) {
+    if (!issuesContainer) return;
+
+    let html = '';
+    issues.forEach((item, idx) => {
+      let pillsHtml = '';
+      item.evidence_points.forEach(pt => {
+        pillsHtml += `<span class="ev-pill">${escapeHtml(pt)}</span>`;
+      });
+
+      html += `
+        <div class="issue-recommend-card" data-idx="${idx}">
+          <div class="issue-header-row">
+            <div class="issue-repo-meta">
+              <span class="repo-badge">${escapeHtml(item.repo)}</span>
+              <span class="issue-num">#${item.issue_number}</span>
+              <span class="fit-pill">${item.fit_score}% Fit Score</span>
+            </div>
+            <span class="time-est">${escapeHtml(item.estimated_hours)}</span>
+          </div>
+          <h3 class="issue-name">${escapeHtml(item.title)}</h3>
+          <p class="issue-desc">${escapeHtml(item.description)}</p>
+          <div class="evidence-pills-row">
+            ${pillsHtml}
+          </div>
+          <div class="issue-card-actions">
+            <button class="btn btn-black btn-select-issue" data-idx="${idx}">
+              Select this issue & get plan →
+            </button>
+          </div>
+        </div>
+      `;
+    });
+
+    issuesContainer.innerHTML = html;
+
+    // Attach select issue handlers
+    document.querySelectorAll('.btn-select-issue').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.getAttribute('data-idx'), 10);
+        selectedIssue = issues[idx];
+        populatePlan(selectedIssue);
+        setStep(3);
+      });
+    });
+  }
+
+  function populatePlan(issue) {
+    if (!issue) return;
+
+    if (planTitle) {
+      planTitle.textContent = issue.title;
+    }
+    const repoBadge = document.querySelector('.plan-banner .repo-badge');
+    if (repoBadge) {
+      repoBadge.textContent = `${issue.repo} #${issue.issue_number}`;
+    }
+
+    // Populate checklist
+    if (checklistBox && issue.implementation_steps) {
+      let cbHtml = '';
+      issue.implementation_steps.forEach(step => {
+        cbHtml += `
+          <label class="check-row">
+            <input type="checkbox" class="plan-cb">
+            <span>${escapeHtml(step)}</span>
+          </label>
+        `;
+      });
+      checklistBox.innerHTML = cbHtml;
+
+      // Re-attach counter listeners
+      const checkboxes = checklistBox.querySelectorAll('.plan-cb');
+      function updateChecklist() {
+        let count = 0;
+        checkboxes.forEach(cb => { if (cb.checked) count++; });
+        if (checklistCounter) {
+          checklistCounter.textContent = `${count} of ${checkboxes.length} completed`;
+        }
+      }
+      checkboxes.forEach(cb => cb.addEventListener('change', updateChecklist));
+      updateChecklist();
+    }
+
+    // Populate codebase references
+    if (codebaseRefList && issue.codebase_references) {
+      let refHtml = '';
+      issue.codebase_references.forEach(ref => {
+        refHtml += `
+          <li class="reads-item">
+            <span class="code-pill">${escapeHtml(ref.type)}</span>
+            <span class="reads-desc"><code>${escapeHtml(ref.reference)}</code></span>
+          </li>
+        `;
+      });
+      codebaseRefList.innerHTML = refHtml;
+    }
+  }
+
+  // Submit Step 1 -> Call Backend -> Step 2
   if (formConnect) {
-    formConnect.addEventListener('submit', (e) => {
+    formConnect.addEventListener('submit', async (e) => {
       e.preventDefault();
+      const username = ghUsernameInput ? ghUsernameInput.value.trim() : 'octocat';
+
       btnAnalyze.innerHTML = 'Analyzing...';
       btnAnalyze.disabled = true;
 
-      setTimeout(() => {
+      try {
+        const apiUrl = window.CONTRIB_API_URL || 'http://localhost:8000';
+        const res = await fetch(`${apiUrl}/beginner/analyze`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username })
+        });
+
+        if (!res.ok) {
+          throw new Error(`API error (${res.status})`);
+        }
+
+        currentBeginnerData = await res.json();
+        renderMatchedIssues(currentBeginnerData.recommended_issues);
+        setStep(2);
+      } catch (err) {
+        console.error('[Contrib] Beginner analysis error:', err);
+        alert(`Failed to analyze profile: ${err.message}`);
+      } finally {
         btnAnalyze.innerHTML = 'Analyze my GitHub <span class="arrow">→</span>';
         btnAnalyze.disabled = false;
-        setStep(2);
-      }, 500);
+      }
     });
   }
 
@@ -81,31 +213,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Direct Stepper Click
   stepBtn1.addEventListener('click', () => setStep(1));
-  stepBtn2.addEventListener('click', () => setStep(2));
-  stepBtn3.addEventListener('click', () => setStep(3));
-
-  // Select Issue -> Step 3
-  document.querySelectorAll('.btn-select-issue').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const card = btn.closest('.issue-recommend-card');
-      const issueName = card.querySelector('.issue-name')?.textContent || '';
-      if (planTitle) planTitle.textContent = issueName;
-      setStep(3);
-    });
-  });
-
-  // Checklist counter
-  function updateChecklist() {
-    let count = 0;
-    checkboxes.forEach(cb => {
-      if (cb.checked) count++;
-    });
-    if (checklistCounter) {
-      checklistCounter.textContent = `${count} of ${checkboxes.length} completed`;
-    }
-  }
-
-  checkboxes.forEach(cb => {
-    cb.addEventListener('change', updateChecklist);
-  });
+  stepBtn2.addEventListener('click', () => { if (currentBeginnerData) setStep(2); });
+  stepBtn3.addEventListener('click', () => { if (selectedIssue) setStep(3); });
 });

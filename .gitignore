@@ -1,0 +1,27 @@
+# Environments and keys
+.env
+.env.local
+.venv/
+venv/
+ENV/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Database
+*.db
+*.sqlite3
+
+# Operating System
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+npm-debug.log

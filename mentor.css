@@ -525,6 +525,11 @@ body.clean-app-bg {
   color: #34d399;
 }
 
+.code-line.del {
+  background-color: rgba(244, 63, 94, 0.12);
+  color: #fb7185;
+}
+
 .code-line.highlight {
   background-color: rgba(16, 185, 129, 0.22);
 }

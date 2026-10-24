@@ -41,7 +41,7 @@ CONTRIBUTOR / MAINTAINER
                               v
                     +-------------------+
                     |     FRONTEND      |
-                    |  React / Next.js  |
+                    | Vanilla HTML/JS   |
                     +-------------------+
                               |
                               | HTTP requests (JSON)
@@ -102,8 +102,6 @@ Contribo should be able to explain why it makes a recommendation or flags a prob
 - Recommendations should include understandable reasons.
 - Developers and maintainers should make the final decisions.
 
-## AI Model
-
 ## AI Models
 
 Contribo uses four models for its intelligence layer.
@@ -146,13 +144,69 @@ The final technology stack will be documented as the implementation develops.
 
 ## Project Status
 
-**Early development**
+**Active development — backend and frontend are connected and working.**
 
-Contribo is currently being set up as an open-source project. The architecture and initial implementation are still being developed.
+| Layer | Status |
+|---|---|
+| Frontend (HTML/CSS/JS) | ✅ Complete |
+| Backend API (FastAPI) | ✅ Complete |
+| GitHub data fetching | ✅ Complete (issue, PRs, diffs, CI checks) |
+| SQLite caching | ✅ Complete |
+| Rule engine (scoring) | ✅ Placeholder — deterministic signals |
+| LLM integration (Qwen) | 🔜 Placeholder hooks in place |
 
 ## Getting Started
 
-Installation and usage instructions will be added when the initial implementation is ready.
+### Prerequisites
+
+- Python 3.10+
+- pip
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/vanshikasoni22/Metamorph-OpenSource.git
+cd Metamorph-OpenSource
+```
+
+### 2. Set up the Python environment
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
+pip install -r backend/requirements.txt
+```
+
+### 3. Configure environment variables
+
+```bash
+cp .env.example .env
+```
+
+Open `.env` and add your GitHub Personal Access Token (optional but recommended):
+
+```
+GITHUB_TOKEN=ghp_your_token_here
+```
+
+Without a token, the GitHub API allows 60 requests/hour. With a token, the limit is 5,000 requests/hour.
+
+### 4. Start the backend server
+
+```bash
+python3 -m uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+The API will be available at `http://localhost:8000`. The frontend is served automatically from the same server.
+
+Open your browser at: **http://localhost:8000**
+
+### API Documentation
+
+Interactive API docs are available at:
+
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
 
 ## Contributing
 
