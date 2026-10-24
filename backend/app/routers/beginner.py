@@ -1,4 +1,6 @@
+import os
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import FileResponse
 from ..models import (
     BeginnerAnalyzeRequest,
     BeginnerAnalyzeResponse,
@@ -6,6 +8,13 @@ from ..models import (
 from ..services.beginner_service import analyze_beginner_github
 
 router = APIRouter(prefix="/beginner", tags=["Beginner"])
+
+frontend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+
+@router.get("", include_in_schema=False)
+@router.get("/", include_in_schema=False)
+async def serve_beginner_page():
+    return FileResponse(os.path.join(frontend_dir, "beginner.html"))
 
 @router.post("/analyze", response_model=BeginnerAnalyzeResponse)
 async def analyze_beginner_profile(request: BeginnerAnalyzeRequest):

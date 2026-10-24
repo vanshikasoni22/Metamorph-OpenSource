@@ -30,11 +30,13 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Enable CORS for frontend origin (allowing localhost ports and file:// access)
+from fastapi.responses import FileResponse
+
+# Enable CORS for frontend origin
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -44,7 +46,24 @@ app.include_router(health.router)
 app.include_router(maintainer.router)
 app.include_router(beginner.router)
 
-# Mount frontend static files from root directory so entire app can run on one server
+# Resolve frontend directory
 frontend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+
+# Explicit HTML page routes
+@app.get("/", include_in_schema=False)
+async def serve_root():
+    return FileResponse(os.path.join(frontend_dir, "index.html"))
+
+@app.get("/beginner", include_in_schema=False)
+@app.get("/beginner.html", include_in_schema=False)
+async def serve_beginner():
+    return FileResponse(os.path.join(frontend_dir, "beginner.html"))
+
+@app.get("/mentor", include_in_schema=False)
+@app.get("/mentor.html", include_in_schema=False)
+async def serve_mentor():
+    return FileResponse(os.path.join(frontend_dir, "mentor.html"))
+
+# Mount frontend static files from root directory so CSS, JS, and assets are served cleanly
 if os.path.exists(os.path.join(frontend_dir, "index.html")):
     app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="static_frontend")

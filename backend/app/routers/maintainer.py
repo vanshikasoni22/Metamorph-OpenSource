@@ -1,4 +1,6 @@
+import os
 from fastapi import APIRouter, HTTPException, Depends
+from fastapi.responses import FileResponse
 from ..models import (
     MaintainerFetchRequest,
     MaintainerFetchResponse,
@@ -18,6 +20,13 @@ from ..services.cache_service import (
 from ..services.rule_engine import run_placeholder_scoring
 
 router = APIRouter(prefix="/maintainer", tags=["Maintainer"])
+
+frontend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+
+@router.get("", include_in_schema=False)
+@router.get("/", include_in_schema=False)
+async def serve_maintainer_page():
+    return FileResponse(os.path.join(frontend_dir, "mentor.html"))
 
 @router.post("/fetch", response_model=MaintainerFetchResponse)
 async def fetch_maintainer_data(request: MaintainerFetchRequest):

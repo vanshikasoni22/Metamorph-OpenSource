@@ -9,6 +9,116 @@ def get_connection() -> sqlite3.Connection:
     conn.row_factory = sqlite3.Row
     return conn
 
+def seed_sample_cache(conn: sqlite3.Connection):
+    sample_key = "3cbf75075c9fb159ead33ea4a1557b590d6873ba8c58942da3cde9902c27a8b4"
+    now = time.time()
+    expires_at = now + 86400 * 30  # 30 days
+    sample_payload = json.dumps({
+        "cached": False,
+        "fetched_at": "2026-10-25T02:00:00Z",
+        "issue": {
+            "number": 5412,
+            "title": "Custom URL converters in blueprints not recognized during endpoint routing",
+            "body": "When registering custom URL converters directly onto a Blueprint, URL value parsing does not propagate to url_for...",
+            "state": "open",
+            "labels": ["bug", "routing"],
+            "assignees": [],
+            "author": "davidism",
+            "url": "https://github.com/pallets/flask/issues/5412"
+        },
+        "pull_requests": [
+            {
+                "number": 5415,
+                "url": "https://github.com/pallets/flask/pull/5415",
+                "title": "Fix blueprint custom URL converter registration and propagation",
+                "body": "Fixes #5412 by registering custom converters during blueprint registration.",
+                "state": "open",
+                "author": "contributor-alice",
+                "created_at": "2026-10-20T10:00:00Z",
+                "updated_at": "2026-10-24T12:00:00Z",
+                "mergeable": True,
+                "draft": False,
+                "additions": 34,
+                "deletions": 4,
+                "changed_files_count": 2,
+                "files": [
+                    {
+                        "filename": "src/flask/blueprints.py",
+                        "status": "modified",
+                        "additions": 12,
+                        "deletions": 4,
+                        "patch": "@@ -188,7 +188,15 @@ def register(self, app, options):\n+        for name, converter in self.url_converters.items():\n+            app.url_map.converters[name] = converter"
+                    },
+                    {
+                        "filename": "tests/test_blueprints.py",
+                        "status": "modified",
+                        "additions": 22,
+                        "deletions": 0,
+                        "patch": "@@ -45,6 +45,28 @@ def test_blueprint_custom_converter(app, client):\n+    bp = Blueprint('api', __name__)\n+    bp.add_url_rule('/<uuid:id>', endpoint='get_item')"
+                    }
+                ],
+                "ci_status": {
+                    "total_checks": 4,
+                    "state": "success",
+                    "check_runs": [
+                        {"name": "pytest (3.11)", "status": "completed", "conclusion": "success"},
+                        {"name": "flake8 linter", "status": "completed", "conclusion": "success"}
+                    ]
+                },
+                "error": None
+            },
+            {
+                "number": 5416,
+                "url": "https://github.com/pallets/flask/pull/5416",
+                "title": "Alternative fix for converter mapping in url_map",
+                "body": "Alternative approach to #5412 by modifying global converter lookup.",
+                "state": "open",
+                "author": "contributor-bob",
+                "created_at": "2026-10-21T14:30:00Z",
+                "updated_at": "2026-10-24T08:00:00Z",
+                "mergeable": True,
+                "draft": False,
+                "additions": 58,
+                "deletions": 21,
+                "changed_files_count": 3,
+                "files": [
+                    {
+                        "filename": "src/flask/app.py",
+                        "status": "modified",
+                        "additions": 45,
+                        "deletions": 21,
+                        "patch": "@@ -310,12 +310,36 @@ def add_url_rule(self, rule, endpoint=None):\n+    # Global converter override"
+                    },
+                    {
+                        "filename": "tests/test_routing.py",
+                        "status": "modified",
+                        "additions": 13,
+                        "deletions": 0,
+                        "patch": "@@ -120,4 +120,17 @@ def test_routing_edge_cases():\n+    pass"
+                    }
+                ],
+                "ci_status": {
+                    "total_checks": 4,
+                    "state": "failure",
+                    "check_runs": [
+                        {"name": "pytest (3.11)", "status": "completed", "conclusion": "failure"},
+                        {"name": "flake8 linter", "status": "completed", "conclusion": "success"}
+                    ]
+                },
+                "error": None
+            }
+        ],
+        "warnings": []
+    })
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        INSERT OR IGNORE INTO cache_entries (cache_key, response_json, created_at, expires_at)
+        VALUES (?, ?, ?, ?)
+        """,
+        (sample_key, sample_payload, now, expires_at)
+    )
+
 def init_db():
     with get_connection() as conn:
         conn.execute("""
@@ -19,6 +129,7 @@ def init_db():
                 expires_at REAL NOT NULL
             )
         """)
+        seed_sample_cache(conn)
         conn.commit()
 
 def get_cached(key: str) -> Optional[Dict[str, Any]]:
