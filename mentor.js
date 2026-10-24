@@ -99,6 +99,69 @@ document.addEventListener('DOMContentLoaded', () => {
     el.textContent = `${prefix}${text}`;
   }
 
+  // Database History Elements & Loader
+  const historyCard = document.getElementById('maintainer-history-card');
+  const historyContainer = document.getElementById('history-items-container');
+  const historyCountBadge = document.getElementById('history-count-badge');
+
+  async function loadReviewHistory() {
+    try {
+      const apiUrl = window.CONTRIB_API_URL || '';
+      const res = await fetch(`${apiUrl}/maintainer/history?limit=5`);
+      if (!res.ok) return;
+      const data = await res.json();
+      const history = data.history || [];
+
+      if (!historyCard || !historyContainer) return;
+
+      if (history.length === 0) {
+        historyCard.style.display = 'none';
+        return;
+      }
+
+      historyCard.style.display = 'block';
+      if (historyCountBadge) historyCountBadge.textContent = `${history.length} saved`;
+
+      let html = '';
+      history.forEach((item) => {
+        const dateStr = item.created_at ? new Date(item.created_at * 1000).toLocaleString() : '';
+        html += `
+          <div class="history-item-row" data-history-id="${item.id}" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.15s ease;">
+            <div>
+              <div style="font-weight: 600; font-size: 13.5px; color: #0f172a;">${escapeHtml(item.repo)} #${escapeHtml(String(item.issue_number))} · ${escapeHtml(item.issue_title || '')}</div>
+              <div style="font-size: 12px; color: #64748b; margin-top: 2px;">
+                <span>${item.pr_count} PR(s) evaluated</span> ·
+                <span style="color: #059669; font-weight: 600;">Top Score: ${item.top_score}/100</span> ·
+                <span>${dateStr}</span>
+              </div>
+            </div>
+            <button class="btn btn-outline btn-sm btn-load-history" style="font-size: 12px; padding: 4px 10px;">Load Report →</button>
+          </div>
+        `;
+      });
+      historyContainer.innerHTML = html;
+
+      // Attach click listeners to load report
+      historyContainer.querySelectorAll('.history-item-row').forEach((row, idx) => {
+        row.addEventListener('click', () => {
+          const item = history[idx];
+          if (item && item.report && item.report.score_response) {
+            currentScoreData = item.report.score_response;
+            renderResults(item.report.score_response);
+            if (item.report.pull_requests && item.report.pull_requests[0]) {
+              renderDiffForPR(item.report.pull_requests[0]);
+            }
+            setStep(3);
+          }
+        });
+      });
+    } catch (e) {
+      console.warn('Could not load review history:', e);
+    }
+  }
+
+  loadReviewHistory();
+
   function showAnalysisError(errorMessage) {
     const statusCard = document.querySelector('.analysis-status-card');
     if (statusCard) {

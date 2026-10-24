@@ -183,6 +183,38 @@ def init_db():
                 expires_at REAL NOT NULL
             )
         """)
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS review_reports (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                issue_url TEXT NOT NULL,
+                issue_title TEXT NOT NULL,
+                issue_number INTEGER NOT NULL,
+                repo TEXT NOT NULL,
+                pr_count INTEGER DEFAULT 0,
+                top_pr_number INTEGER,
+                top_score INTEGER DEFAULT 0,
+                summary_markdown TEXT,
+                report_json TEXT NOT NULL,
+                created_at REAL NOT NULL
+            )
+        """)
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS saved_issues (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo TEXT NOT NULL,
+                issue_number INTEGER NOT NULL,
+                title TEXT NOT NULL,
+                description TEXT,
+                fit_score INTEGER DEFAULT 0,
+                estimated_hours TEXT,
+                url TEXT NOT NULL,
+                implementation_steps_json TEXT,
+                codebase_references_json TEXT,
+                saved_by TEXT DEFAULT 'anonymous',
+                created_at REAL NOT NULL,
+                UNIQUE(saved_by, repo, issue_number)
+            )
+        """)
         now = time.time()
         expires_at = now + 86400 * 30
         payload = json.dumps(SAMPLE_PAYLOAD)

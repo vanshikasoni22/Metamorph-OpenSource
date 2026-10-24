@@ -20,6 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnBackStep1 = document.getElementById('btn-back-to-step1');
   const btnBackStep2 = document.getElementById('btn-back-to-step2');
   const ghUsernameInput = document.getElementById('gh-username-input');
+  const btnToggleSaved = document.getElementById('btn-toggle-saved');
+  const savedCountSpan = document.getElementById('saved-count');
 
   // Results containers
   const issuesContainer = document.querySelector('.issues-cards-stack');
@@ -30,6 +32,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let currentBeginnerData = null;
   let selectedIssue = null;
+  let savedIssuesList = [];
+  let isViewingSaved = false;
+
+  async function loadSavedIssues() {
+    try {
+      const apiUrl = window.CONTRIB_API_URL || '';
+      const username = ghUsernameInput ? ghUsernameInput.value.trim() : 'octocat';
+      const res = await fetch(`${apiUrl}/beginner/saved?username=${encodeURIComponent(username)}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      savedIssuesList = data.saved_issues || [];
+      if (savedCountSpan) savedCountSpan.textContent = savedIssuesList.length;
+    } catch (e) {
+      console.warn('Could not load saved issues:', e);
+    }
+  }
+
+  loadSavedIssues();
 
   function setStep(stepNum) {
     viewStep1.style.display = 'none';
@@ -74,15 +94,27 @@ document.addEventListener('DOMContentLoaded', () => {
       .replace(/'/g, '&#039;');
   }
 
-  function renderMatchedIssues(issues) {
+  function renderMatchedIssues(issues, isSavedView = false) {
     if (!issuesContainer) return;
+
+    if (!issues || issues.length === 0) {
+      issuesContainer.innerHTML = `
+        <div style="padding: 32px; text-align: center; background-color: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 12px;">
+          <h3 style="color: #0f172a; margin-bottom: 8px;">${isSavedView ? 'No Saved Issues Yet' : 'No issues found right now'}</h3>
+          <p style="color: #64748b; font-size: 14px;">${isSavedView ? 'Bookmark issues to see them here.' : 'Try searching again in a moment.'}</p>
+        </div>
+      `;
+      return;
+    }
 
     let html = '';
     issues.forEach((item, idx) => {
       let pillsHtml = '';
-      item.evidence_points.forEach(pt => {
-        pillsHtml += `<span class="ev-pill">${escapeHtml(pt)}</span>`;
-      });
+      if (item.evidence_points) {
+        item.evidence_points.forEach(pt => {
+          pillsHtml += `<span class="ev-pill">${escapeHtml(pt)}</span>`;
+        });
+      }
 
       html += `
         <div class="issue-recommend-card" data-idx="${idx}">
@@ -90,19 +122,20 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="issue-repo-meta">
               <span class="repo-badge">${escapeHtml(item.repo)}</span>
               <span class="issue-num">#${item.issue_number}</span>
-              <span class="fit-pill">${item.fit_score}% Fit Score</span>
+              <span class="fit-pill">${item.fit_score || 90}% Fit Score</span>
             </div>
-            <span class="time-est">${escapeHtml(item.estimated_hours)}</span>
+            <span class="time-est">${escapeHtml(item.estimated_hours || '2-4 hours est.')}</span>
           </div>
           <h3 class="issue-name">${escapeHtml(item.title)}</h3>
-          <p class="issue-desc">${escapeHtml(item.description)}</p>
+          <p class="issue-desc">${escapeHtml(item.description || '')}</p>
           <div class="evidence-pills-row">
             ${pillsHtml}
           </div>
-          <div class="issue-card-actions">
+          <div class="issue-card-actions" style="display: flex; gap: 10px; align-items: center;">
             <button class="btn btn-black btn-select-issue" data-idx="${idx}">
               Select this issue & get plan →
             </button>
+            ${!isSavedView ? `<button class="btn btn-outline btn-save-issue" data-idx="${idx}">★ Save</button>` : ''}
           </div>
         </div>
       `;
@@ -118,6 +151,51 @@ document.addEventListener('DOMContentLoaded', () => {
         populatePlan(selectedIssue);
         setStep(3);
       });
+    });
+
+    // Attach save issue handlers
+    document.querySelectorAll('.btn-save-issue').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const idx = parseInt(btn.getAttribute('data-idx'), 10);
+        const iss = issues[idx];
+        btn.textContent = 'Saving...';
+        try {
+          const apiUrl = window.CONTRIB_API_URL || '';
+          const username = ghUsernameInput ? ghUsernameInput.value.trim() : 'octocat';
+          const res = await fetch(`${apiUrl}/beginner/save`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ issue: iss, username })
+          });
+          if (res.ok) {
+            btn.textContent = '✓ Saved';
+            btn.disabled = true;
+            await loadSavedIssues();
+          } else {
+            btn.textContent = 'Failed';
+          }
+        } catch (err) {
+          btn.textContent = 'Error';
+        }
+      });
+    });
+  }
+
+  // Toggle Saved Issues View
+  if (btnToggleSaved) {
+    btnToggleSaved.addEventListener('click', async () => {
+      isViewingSaved = !isViewingSaved;
+      if (isViewingSaved) {
+        btnToggleSaved.textContent = '← Show Recommendations';
+        await loadSavedIssues();
+        renderMatchedIssues(savedIssuesList, true);
+      } else {
+        btnToggleSaved.innerHTML = `★ Saved Issues (<span id="saved-count">${savedIssuesList.length}</span>)`;
+        if (currentBeginnerData && currentBeginnerData.recommended_issues) {
+          renderMatchedIssues(currentBeginnerData.recommended_issues, false);
+        }
+      }
     });
   }
 
