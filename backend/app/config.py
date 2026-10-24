@@ -23,3 +23,15 @@ CACHE_TTL_SECONDS = int(os.getenv("CACHE_TTL_SECONDS", "600"))
 DATABASE_PATH = os.getenv("DATABASE_PATH", "contrib_cache.db")
 HOST = os.getenv("HOST", "127.0.0.1")
 PORT = int(os.getenv("PORT", "8000"))
+
+# Database connection URL (PostgreSQL / SQLite)
+# Normalizes Render/Heroku 'postgres://' URI to 'postgresql://' for SQLAlchemy
+raw_db_url = os.getenv("DATABASE_URL", "").strip()
+if raw_db_url:
+    if raw_db_url.startswith("postgres://"):
+        DATABASE_URL = raw_db_url.replace("postgres://", "postgresql://", 1)
+    else:
+        DATABASE_URL = raw_db_url
+else:
+    DATABASE_URL = f"sqlite:///{DATABASE_PATH}"
+
