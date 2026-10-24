@@ -35,6 +35,54 @@ These are the project's planned capabilities. Features will be marked as impleme
 
 ## How It Works
 
+CONTRIBUTOR / MAINTAINER
+                              |
+                              v
+                    +-------------------+
+                    |     FRONTEND      |
+                    |  React / Next.js  |
+                    +-------------------+
+                              |
+                              | HTTP requests (JSON)
+                              v
+                    +-------------------+
+                    |      BACKEND      |
+                    |      FastAPI      |
+                    +-------------------+
+                              |
+                 +------------+------------+
+                 |            |            |
+                 v            v            v
+          +-------------+ +-------------+ +-------------+
+          | Issue       | | Beginner    | | PR          |
+          | Discovery   | | Guidance    | | Verification|
+          | Engine      | | Engine      | | Engine      |
+          +-------------+ +-------------+ +-------------+
+                 |            |            |
+                 +------------+------------+
+                              |
+                              v
+                    +-------------------+
+                    |   QWEN MODEL      |
+                    | Issue and code    |
+                    | understanding     |
+                    +-------------------+
+                              |
+                              v
+                    +-------------------+
+                    | RULES + EVIDENCE  |
+                    | Scoring, checks,  |
+                    | tests, rankings   |
+                    +-------------------+
+                              |
+                              v
+                    +-------------------+
+                    | JSON RESPONSE     |
+                    +-------------------+
+                              |
+                              v
+                    FRONTEND DISPLAYS RESULTS
+
 Contribo has four main stages.
 
 1. **Repository Understanding:** Understand the repository's structure, programming languages, dependencies, and tests.
