@@ -35,6 +35,7 @@ These are the project's planned capabilities. Features will be marked as impleme
 
 ## How It Works
 
+```text
 CONTRIBUTOR / MAINTAINER
                               |
                               v
@@ -82,6 +83,7 @@ CONTRIBUTOR / MAINTAINER
                               |
                               v
                     FRONTEND DISPLAYS RESULTS
+```
 
 Contribo has four main stages.
 
