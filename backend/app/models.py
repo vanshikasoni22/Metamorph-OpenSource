@@ -116,3 +116,23 @@ class BeginnerAnalyzeResponse(BaseModel):
     analysis_cites: List[Dict[str, str]] = Field(default_factory=list)
     recommended_issues: List[MatchedIssue] = Field(default_factory=list)
 
+class SkillItem(BaseModel):
+    skill: str
+    level: str = Field(default="beginner", description="beginner, intermediate, advanced")
+
+class BeginnerProfileInput(BaseModel):
+    username: str
+    skills: List[SkillItem] = Field(default_factory=list)
+    interests: List[str] = Field(default_factory=list)
+    hours_per_week: int = Field(default=8, ge=1, le=100)
+    goal: str = Field(default="learn", description="learn, resume, GSoC, give_back")
+    growth_speed: str = Field(default="steady", description="casual, steady, fast")
+    preferred_languages: List[str] = Field(default_factory=list)
+    difficulty_preference: str = Field(default="beginner", description="beginner, intermediate, challenging")
+
+class BeginnerProfileResponse(BaseModel):
+    status: str = "ok"
+    profile: BeginnerProfileInput
+    updated_at: Optional[str] = None
+
+

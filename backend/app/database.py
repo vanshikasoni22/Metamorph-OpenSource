@@ -215,6 +215,14 @@ def init_db():
                 UNIQUE(saved_by, repo, issue_number)
             )
         """)
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS user_profiles (
+                username TEXT PRIMARY KEY,
+                profile_json TEXT NOT NULL,
+                updated_at REAL NOT NULL
+            )
+        """)
+
         now = time.time()
         expires_at = now + 86400 * 30
         payload = json.dumps(SAMPLE_PAYLOAD)

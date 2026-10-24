@@ -59,9 +59,10 @@
         </div>
       </nav>
 
-      <!-- STEP 1: Connect GitHub (Matching screenshot exactly) -->
+      <!-- STEP 1: Connect GitHub & Questionnaire -->
       <div class="step-view" id="view-step-1">
-        <div class="step-1-grid">
+        <!-- Section A: Connect GitHub Username -->
+        <div class="step-1-grid" id="section-username">
           <!-- Left Column -->
           <div class="step-1-left">
             <h1 class="main-heading">
@@ -122,6 +123,238 @@
             </div>
           </div>
         </div>
+
+        <!-- Section B: Student-Friendly Contributor Questionnaire -->
+        <div id="section-questionnaire" style="display: none;">
+          <div class="questionnaire-container">
+            <div class="questionnaire-header">
+              <div class="questionnaire-header-info">
+                <span class="mode-pill-badge" style="margin-bottom: 10px;">Step 1 of 3 · Profile Customization</span>
+                <h1 class="main-heading">Customize your contributor profile</h1>
+                <p class="main-subheading">
+                  We customize issue recommendations to your skills, available hours, and learning goals. You can adjust any question below.
+                </p>
+              </div>
+              <div class="questionnaire-progress-card">
+                <div class="q-progress-title">
+                  <span>Questionnaire</span>
+                  <span id="q-progress-pct">6 questions</span>
+                </div>
+                <div class="q-progress-bar">
+                  <div class="q-progress-fill" style="width: 100%;"></div>
+                </div>
+                <p class="q-progress-sub">Saved automatically to your profile</p>
+              </div>
+            </div>
+
+            <!-- Validation Error Banner -->
+            <div id="questionnaire-error" class="q-alert-error" style="display: none;"></div>
+            <!-- Loading Indicator -->
+            <div id="questionnaire-loading" class="q-alert-loading" style="display: none;">
+              <span class="q-spinner"></span>
+              <span>Saving your preferences and searching for suitable issues...</span>
+            </div>
+
+            <form id="form-questionnaire" class="questionnaire-form">
+              <!-- Q1: Skills with Level -->
+              <div class="q-card">
+                <div class="q-card-header">
+                  <div class="q-num">1</div>
+                  <div>
+                    <h3 class="q-title">Skills & Experience Level</h3>
+                    <p class="q-desc">Languages and technologies you know or want to practice. Pick a skill and set your comfort level.</p>
+                  </div>
+                </div>
+                
+                <div class="skills-manager">
+                  <div id="selected-skills-container" class="selected-skills-tags">
+                    <!-- Populated dynamically -->
+                  </div>
+
+                  <div class="add-skill-row">
+                    <select id="select-skill-name" class="q-select">
+                      <option value="">-- Choose language / skill --</option>
+                      <option value="Python">Python</option>
+                      <option value="JavaScript">JavaScript</option>
+                      <option value="TypeScript">TypeScript</option>
+                      <option value="Go">Go</option>
+                      <option value="Rust">Rust</option>
+                      <option value="Java">Java</option>
+                      <option value="C++">C++</option>
+                      <option value="HTML/CSS">HTML/CSS</option>
+                      <option value="SQL">SQL</option>
+                      <option value="Docker">Docker</option>
+                      <option value="custom">Other / Custom...</option>
+                    </select>
+
+                    <input type="text" id="custom-skill-input" class="q-input" placeholder="Skill name" style="display: none; max-width: 160px;">
+
+                    <select id="select-skill-level" class="q-select">
+                      <option value="beginner">Beginner (learning basics)</option>
+                      <option value="intermediate">Intermediate (comfortable)</option>
+                      <option value="advanced">Advanced (experienced)</option>
+                    </select>
+
+                    <button type="button" class="btn btn-outline btn-sm" id="btn-add-skill">+ Add Skill</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Q2: Interests & Topics -->
+              <div class="q-card">
+                <div class="q-card-header">
+                  <div class="q-num">2</div>
+                  <div>
+                    <h3 class="q-title">Interests & Topics</h3>
+                    <p class="q-desc">Click topics you find exciting. Repositories matching these domains will be prioritized.</p>
+                  </div>
+                </div>
+
+                <div class="chips-selector" id="interests-chips-container">
+                  <button type="button" class="chip-btn" data-value="cli">CLI & Terminal</button>
+                  <button type="button" class="chip-btn" data-value="developer-tools">Developer Tools</button>
+                  <button type="button" class="chip-btn" data-value="web">Web & APIs</button>
+                  <button type="button" class="chip-btn" data-value="ai-ml">AI & Data</button>
+                  <button type="button" class="chip-btn" data-value="system">Systems & Infra</button>
+                  <button type="button" class="chip-btn" data-value="frontend">Frontend & UI</button>
+                  <button type="button" class="chip-btn" data-value="backend">Backend Services</button>
+                  <button type="button" class="chip-btn" data-value="security">Security</button>
+                  <button type="button" class="chip-btn" data-value="documentation">Documentation</button>
+                  <button type="button" class="chip-btn" data-value="testing">Testing</button>
+                </div>
+
+                <div class="custom-chip-row">
+                  <input type="text" id="custom-interest-input" class="q-input" placeholder="Add custom topic (e.g. compilers)...">
+                  <button type="button" class="btn btn-outline btn-sm" id="btn-add-custom-interest">+ Add Topic</button>
+                </div>
+              </div>
+
+              <!-- Q3: Available Hours per Week -->
+              <div class="q-card">
+                <div class="q-card-header">
+                  <div class="q-num">3</div>
+                  <div>
+                    <h3 class="q-title">Available Hours per Week</h3>
+                    <p class="q-desc">How much time can you commit? We use this to scale issue estimates so your plan stays achievable.</p>
+                  </div>
+                </div>
+
+                <div class="slider-group">
+                  <div class="slider-display-row">
+                    <span class="hours-badge" id="hours-display-badge">8 hours / week</span>
+                    <span class="hours-hint" id="hours-hint">~1 hour per day. Great for steady progress.</span>
+                  </div>
+                  <input type="range" id="hours-slider" min="2" max="30" step="1" value="8" class="q-slider">
+                  <div class="slider-presets">
+                    <button type="button" class="preset-pill" data-hours="5">5 hrs (Casual)</button>
+                    <button type="button" class="preset-pill active" data-hours="8">8 hrs (Steady)</button>
+                    <button type="button" class="preset-pill" data-hours="15">15 hrs (Intensive)</button>
+                    <button type="button" class="preset-pill" data-hours="25">25+ hrs (Full)</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Q4: Goal or Intention -->
+              <div class="q-card">
+                <div class="q-card-header">
+                  <div class="q-num">4</div>
+                  <div>
+                    <h3 class="q-title">Your Primary Goal</h3>
+                    <p class="q-desc">What is your main intention for contributing right now?</p>
+                  </div>
+                </div>
+
+                <div class="radio-cards-grid" id="goal-options-grid">
+                  <label class="radio-card selected" data-value="learn">
+                    <input type="radio" name="goal" value="learn" checked>
+                    <div class="rc-icon">🎓</div>
+                    <div class="rc-body">
+                      <div class="rc-title">Learn & Practice</div>
+                      <div class="rc-desc">Explore unfamiliar codebases, git workflows, and developer best practices.</div>
+                    </div>
+                  </label>
+
+                  <label class="radio-card" data-value="resume">
+                    <input type="radio" name="goal" value="resume">
+                    <div class="rc-icon">📄</div>
+                    <div class="rc-body">
+                      <div class="rc-title">Build Portfolio / Resume</div>
+                      <div class="rc-desc">Ship verifiable pull requests to highlight on your resume and interviews.</div>
+                    </div>
+                  </label>
+
+                  <label class="radio-card" data-value="GSoC">
+                    <input type="radio" name="goal" value="GSoC">
+                    <div class="rc-icon">🏛️</div>
+                    <div class="rc-body">
+                      <div class="rc-title">GSoC & Student Programs</div>
+                      <div class="rc-desc">Prepare for Google Summer of Code, LFX, or open source fellowships.</div>
+                    </div>
+                  </label>
+
+                  <label class="radio-card" data-value="give_back">
+                    <input type="radio" name="goal" value="give_back">
+                    <div class="rc-icon">🤝</div>
+                    <div class="rc-body">
+                      <div class="rc-title">Give Back to Community</div>
+                      <div class="rc-desc">Support open-source libraries and utilities you rely on daily.</div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Q5 & Q6: Growth Speed & Difficulty -->
+              <div class="q-grid-two-col">
+                <!-- Q5: Growth Speed -->
+                <div class="q-card">
+                  <div class="q-card-header">
+                    <div class="q-num">5</div>
+                    <div>
+                      <h3 class="q-title">Growth Pace</h3>
+                      <p class="q-desc">How quickly do you want to tackle unfamiliar concepts?</p>
+                    </div>
+                  </div>
+
+                  <div class="option-pill-group" id="growth-speed-group">
+                    <button type="button" class="opt-pill" data-value="casual">🌱 Casual (comfort first)</button>
+                    <button type="button" class="opt-pill active" data-value="steady">⚡ Steady (balanced)</button>
+                    <button type="button" class="opt-pill" data-value="fast">🚀 Fast (steep curve)</button>
+                  </div>
+                </div>
+
+                <!-- Q6: Difficulty Preference -->
+                <div class="q-card">
+                  <div class="q-card-header">
+                    <div class="q-num">6</div>
+                    <div>
+                      <h3 class="q-title">Difficulty Preference</h3>
+                      <p class="q-desc">What scope of issues should we look for?</p>
+                    </div>
+                  </div>
+
+                  <div class="option-pill-group" id="difficulty-group">
+                    <button type="button" class="opt-pill active" data-value="beginner">🟢 Beginner (small diffs)</button>
+                    <button type="button" class="opt-pill" data-value="intermediate">🟡 Intermediate (features)</button>
+                    <button type="button" class="opt-pill" data-value="challenging">🔴 Challenging (core logic)</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Footer -->
+              <div class="q-actions-bar">
+                <button type="button" class="btn btn-outline" id="btn-back-to-username">
+                  ← Change GitHub Username
+                </button>
+                <div class="q-actions-right">
+                  <span id="profile-save-status" class="save-status-text"></span>
+                  <button type="submit" class="btn btn-black" id="btn-save-profile-continue">
+                    Save Profile & Find Issues <span class="arrow">→</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
 
       <!-- STEP 2: Pick an Issue (Interactive recommendations) -->
@@ -133,11 +366,13 @@
               Issues matched to your detected languages, public repositories, and activity signals. Every recommendation cites checkable evidence.
             </p>
           </div>
-          <div style="display: flex; gap: 8px;">
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn btn-outline btn-sm" id="btn-edit-questionnaire">✏️ Edit Questionnaire</button>
             <button class="btn btn-outline btn-sm" id="btn-toggle-saved">★ Saved Issues (<span id="saved-count">0</span>)</button>
             <button class="btn btn-outline btn-sm" id="btn-back-to-step1">← Modify GitHub user</button>
           </div>
         </div>
+
 
         <!-- User Profile & GitHub Evidence Banner -->
         <div class="user-profile-card" id="user-profile-banner">

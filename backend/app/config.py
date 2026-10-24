@@ -35,3 +35,7 @@ if raw_db_url:
 else:
     DATABASE_URL = f"sqlite:///{DATABASE_PATH}"
 
+# Qwen Inference config
+HF_TOKEN = os.getenv("HF_TOKEN", "").strip() or None
+QWEN_MODEL = os.getenv("QWEN_MODEL", "Qwen/Qwen3.8-27B:novita").strip()
+QWEN_BASE_URL = os.getenv("QWEN_BASE_URL", "https://router.huggingface.co/v1").rstrip("/")

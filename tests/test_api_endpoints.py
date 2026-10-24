@@ -150,3 +150,46 @@ async def test_beginner_save_list_and_delete():
         # 4. Confirm it's gone
         r_list2 = await client.get(f"/beginner/saved?username={username}")
         assert len(r_list2.json()["saved_issues"]) == 0
+
+@pytest.mark.asyncio
+async def test_beginner_profile_save_and_load():
+    import uuid
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as client:
+        username = f"test_user_{uuid.uuid4().hex[:8]}"
+
+        # 1. Initially profile is not found
+        r_get1 = await client.get(f"/beginner/profile?username={username}")
+        assert r_get1.status_code == 200
+        assert r_get1.json()["status"] == "not_found"
+
+
+        # 2. Save profile
+        profile_data = {
+            "username": username,
+            "skills": [
+                {"skill": "Python", "level": "beginner"},
+                {"skill": "JavaScript", "level": "beginner"}
+            ],
+            "interests": ["cli", "developer-tools", "web"],
+            "hours_per_week": 8,
+            "goal": "learn",
+            "growth_speed": "steady",
+            "preferred_languages": ["Python", "JavaScript"],
+            "difficulty_preference": "beginner"
+        }
+        r_save = await client.post("/beginner/profile", json=profile_data)
+        assert r_save.status_code == 200
+        assert r_save.json()["status"] == "saved"
+        assert r_save.json()["profile"]["username"] == username
+        assert len(r_save.json()["profile"]["skills"]) == 2
+
+        # 3. Load saved profile
+        r_get2 = await client.get(f"/beginner/profile?username={username}")
+        assert r_get2.status_code == 200
+        assert r_get2.json()["status"] == "found"
+        loaded = r_get2.json()["profile"]
+        assert loaded["username"] == username
+        assert loaded["hours_per_week"] == 8
+        assert loaded["goal"] == "learn"
+        assert "cli" in loaded["interests"]
+

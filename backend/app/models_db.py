@@ -143,3 +143,18 @@ class SavedIssueRecord(Base):
     def __repr__(self):
         return f"<SavedIssueRecord repo={self.repo} #{self.issue_number} user={self.saved_by}>"
 
+
+class UserProfileRecord(Base):
+    """
+    Stores beginner contributor preferences & questionnaire profile.
+    """
+    __tablename__ = "user_profiles"
+
+    username = Column(String(100), primary_key=True, index=True)
+    profile_json = Column(Text, nullable=False)
+    updated_at = Column(Float, nullable=False, default=time.time)
+
+    def __repr__(self):
+        return f"<UserProfileRecord user={self.username}>"
+
+

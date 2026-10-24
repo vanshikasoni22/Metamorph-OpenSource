@@ -326,3 +326,96 @@ def delete_saved_beginner_issue(repo: str, issue_number: int, saved_by: str = "a
             return True
     except Exception:
         return False
+
+
+def save_user_profile(profile_dict: Dict[str, Any]) -> bool:
+    """
+    Saves or updates a user profile questionnaire in PostgreSQL / SQLite.
+    """
+    username = profile_dict.get("username", "").strip()
+    if not username:
+        return False
+
+    now = time.time()
+    payload = json.dumps(profile_dict)
+
+    if _USE_SQLALCHEMY and SessionLocal:
+        try:
+            from ..models_db import UserProfileRecord
+            with SessionLocal() as session:
+                existing = session.query(UserProfileRecord).filter(
+                    UserProfileRecord.username == username
+                ).first()
+                if existing:
+                    existing.profile_json = payload
+                    existing.updated_at = now
+                else:
+                    new_record = UserProfileRecord(
+                        username=username,
+                        profile_json=payload,
+                        updated_at=now
+                    )
+                    session.add(new_record)
+                session.commit()
+                return True
+        except Exception as e:
+            logger.warning(f"Could not save profile via SQLAlchemy: {e}")
+
+    # SQLite fallback
+    try:
+        with get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                INSERT INTO user_profiles (username, profile_json, updated_at)
+                VALUES (?, ?, ?)
+                ON CONFLICT(username) DO UPDATE SET
+                    profile_json = excluded.profile_json,
+                    updated_at = excluded.updated_at
+                """,
+                (username, payload, now)
+            )
+            conn.commit()
+            return True
+    except Exception as e:
+        logger.error(f"Failed to save profile to SQLite: {e}")
+        return False
+
+
+def get_user_profile(username: str) -> Optional[Dict[str, Any]]:
+    """
+    Retrieves a saved user profile questionnaire from PostgreSQL / SQLite.
+    """
+    clean_user = username.strip()
+    if not clean_user:
+        return None
+
+    if _USE_SQLALCHEMY and SessionLocal:
+        try:
+            from ..models_db import UserProfileRecord
+            with SessionLocal() as session:
+                entry = session.query(UserProfileRecord).filter(
+                    UserProfileRecord.username == clean_user
+                ).first()
+                if entry and entry.profile_json:
+                    data = json.loads(entry.profile_json)
+                    return data
+        except Exception as e:
+            logger.warning(f"Could not load profile via SQLAlchemy: {e}")
+
+    # SQLite fallback
+    try:
+        with get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT profile_json FROM user_profiles WHERE username = ?",
+                (clean_user,)
+            )
+            row = cursor.fetchone()
+            if row and row["profile_json"]:
+                return json.loads(row["profile_json"])
+    except Exception as e:
+        logger.error(f"Failed to load profile from SQLite: {e}")
+
+    return None
+

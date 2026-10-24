@@ -29,3 +29,24 @@ def set_maintainer_cache(
 def invalidate_maintainer_cache(issue_url: str, pr_urls: Optional[List[str]] = None):
     key = generate_cache_key(issue_url, pr_urls)
     delete_cached(key)
+
+def generate_llm_cache_key(model: str, system_prompt: str, user_prompt: str, schema_name: str) -> str:
+    """Deterministic hash of LLM query inputs to prevent burning rate limits."""
+    raw = f"{model}|{system_prompt}|{user_prompt}|{schema_name}"
+    return f"llm_{hashlib.sha256(raw.encode('utf-8')).hexdigest()}"
+
+def get_llm_cache(model: str, system_prompt: str, user_prompt: str, schema_name: str) -> Optional[Dict[str, Any]]:
+    key = generate_llm_cache_key(model, system_prompt, user_prompt, schema_name)
+    return get_cached(key)
+
+def set_llm_cache(
+    model: str,
+    system_prompt: str,
+    user_prompt: str,
+    schema_name: str,
+    data: Dict[str, Any],
+    ttl_seconds: Optional[int] = CACHE_TTL_SECONDS
+):
+    key = generate_llm_cache_key(model, system_prompt, user_prompt, schema_name)
+    set_cached(key, data, ttl_seconds=ttl_seconds)
+
