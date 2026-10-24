@@ -130,7 +130,7 @@
           <div>
             <h1 class="main-heading">Pick an issue</h1>
             <p class="main-subheading">
-              Three issues matched to your languages, test activity, and available hours. Every recommendation cites checkable evidence.
+              Issues matched to your detected languages, public repositories, and activity signals. Every recommendation cites checkable evidence.
             </p>
           </div>
           <div style="display: flex; gap: 8px;">
@@ -139,60 +139,60 @@
           </div>
         </div>
 
-        <div class="issues-cards-stack">
-          <!-- Issue 1 -->
-          <div class="issue-recommend-card">
-            <div class="issue-header-row">
-              <div class="issue-repo-meta">
-                <span class="repo-badge">pallets/flask</span>
-                <span class="issue-num">#5412</span>
-                <span class="fit-pill">98% Fit Score</span>
+        <!-- User Profile & GitHub Evidence Banner -->
+        <div class="user-profile-card" id="user-profile-banner">
+          <div class="profile-main-row">
+            <div class="profile-avatar-col">
+              <img id="user-avatar" class="profile-avatar" src="https://github.com/octocat.png" alt="GitHub Avatar" onerror="this.src='https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png'">
+            </div>
+            <div class="profile-details-col">
+              <div class="profile-title-row">
+                <h2 class="profile-name" id="user-full-name">Developer</h2>
+                <a id="user-github-link" href="#" target="_blank" rel="noopener noreferrer" class="profile-handle">@username ↗</a>
+                <span class="profile-status-badge">✓ Analyzed</span>
               </div>
-              <span class="time-est">2–5 hours est.</span>
-            </div>
-            <h3 class="issue-name">Add exponential retry backoff to async webhook dispatch</h3>
-            <p class="issue-desc">
-              When external endpoints return 429/503 status codes, dispatcher abruptly fails rather than retrying with exponential backoff.
-            </p>
-            <div class="evidence-pills-row">
-              <span class="ev-pill">✓ Verified reproduction script in comment #2</span>
-              <span class="ev-pill">✓ Scope: 2 files (dispatcher.py, test_dispatcher.py)</span>
-              <span class="ev-pill">✓ Maintainer active 3h ago</span>
-              <span class="ev-pill">✓ Conflict check: 0 open PRs</span>
-            </div>
-            <div class="issue-card-actions">
-              <button class="btn btn-black btn-select-issue" data-issue-id="1">
-                Select this issue & get plan →
-              </button>
+              <p class="profile-bio" id="user-bio">Analyzing repository activity and language proficiencies...</p>
+              
+              <!-- Quick Stats -->
+              <div class="profile-stats-row">
+                <div class="stat-item">
+                  <span class="stat-value" id="user-stat-repos">0</span>
+                  <span class="stat-label">Public Repos</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-value" id="user-stat-stars">0</span>
+                  <span class="stat-label">Total Stars</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-value" id="user-stat-followers">0</span>
+                  <span class="stat-label">Followers</span>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Issue 2 -->
-          <div class="issue-recommend-card">
-            <div class="issue-header-row">
-              <div class="issue-repo-meta">
-                <span class="repo-badge">pallets/flask</span>
-                <span class="issue-num">#5390</span>
-                <span class="fit-pill">94% Fit Score</span>
-              </div>
-              <span class="time-est">1–3 hours est.</span>
-            </div>
-            <h3 class="issue-name">Add unit tests for edge case timeouts in blueprint routing</h3>
-            <p class="issue-desc">
-              Edge condition where custom timeout parameters on nested blueprints fail to propagate to handler contexts. Missing regression test.
-            </p>
-            <div class="evidence-pills-row">
-              <span class="ev-pill">✓ Existing test pattern in tests/test_blueprints.py</span>
-              <span class="ev-pill">✓ Scope: tests only (0 prod code changes)</span>
-              <span class="ev-pill">✓ Active maintainer response</span>
-              <span class="ev-pill">✓ Conflict check: clear</span>
-            </div>
-            <div class="issue-card-actions">
-              <button class="btn btn-black btn-select-issue" data-issue-id="2">
-                Select this issue & get plan →
-              </button>
+          <!-- Detected Languages Bar -->
+          <div class="profile-languages-section">
+            <span class="languages-label">Detected Tech Stack:</span>
+            <div class="languages-pills-row" id="user-languages-list">
+              <span class="lang-pill">Detecting...</span>
             </div>
           </div>
+
+          <!-- Evidence Citations Collapsible Box -->
+          <div class="profile-citations-box" id="analysis-citations-box">
+            <div class="citations-header">
+              <span class="citations-title">Evidence Citations from GitHub API</span>
+              <span class="citations-count" id="citations-count">0 signals</span>
+            </div>
+            <ul class="citations-list" id="citations-list">
+              <!-- Rendered dynamically -->
+            </ul>
+          </div>
+        </div>
+
+        <div class="issues-cards-stack">
+          <!-- Issue recommendations rendered dynamically by beginner.js -->
         </div>
       </div>
 
@@ -211,7 +211,10 @@
         <div class="plan-grid">
           <div class="plan-card-left">
             <div class="plan-banner">
-              <span class="repo-badge">pallets/flask #5412</span>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span class="repo-badge">pallets/flask #5412</span>
+                <a id="plan-issue-link" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm">View Issue on GitHub ↗</a>
+              </div>
               <h3 class="plan-issue-title" id="plan-title">Add exponential retry backoff to async webhook dispatch</h3>
             </div>
 

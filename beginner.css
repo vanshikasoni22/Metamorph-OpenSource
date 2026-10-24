@@ -350,6 +350,216 @@ body.clean-app-bg {
   border-color: #94a3b8;
 }
 
+/* User Profile Analysis Banner */
+.user-profile-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 28px;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+}
+
+.profile-main-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.profile-avatar-col {
+  flex-shrink: 0;
+}
+
+.profile-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2.5px solid #f1f5f9;
+  background-color: #f8fafc;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.profile-details-col {
+  flex: 1;
+}
+
+.profile-title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.profile-name {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.profile-handle {
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  color: #0284c7;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.15s ease;
+}
+
+.profile-handle:hover {
+  color: #0369a1;
+  text-decoration: underline;
+}
+
+.profile-status-badge {
+  font-size: 11px;
+  font-weight: 700;
+  background-color: #ecfdf5;
+  color: #047857;
+  padding: 2px 9px;
+  border-radius: 9999px;
+  border: 1px solid #a7f3d0;
+}
+
+.profile-bio {
+  font-size: 13.5px;
+  color: #475569;
+  margin: 6px 0 14px 0;
+  line-height: 1.5;
+}
+
+.profile-stats-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-family: var(--font-mono);
+  font-size: 17px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.profile-languages-section {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.languages-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.languages-pills-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.lang-pill {
+  font-size: 12px;
+  font-weight: 600;
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  padding: 3px 10px;
+  border-radius: 9999px;
+}
+
+.profile-citations-box {
+  margin-top: 16px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 18px;
+}
+
+.citations-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.citations-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.citations-count {
+  font-size: 11px;
+  font-weight: 600;
+  color: #059669;
+  background-color: #ecfdf5;
+  padding: 1px 7px;
+  border-radius: 9999px;
+  border: 1px solid #a7f3d0;
+}
+
+.citations-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.citations-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 12px;
+  color: #334155;
+  line-height: 1.4;
+}
+
+.repo-badge-link {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  text-decoration: none;
+}
+
+.repo-badge-link:hover {
+  text-decoration: underline;
+  color: #0284c7;
+}
+
+.issue-link {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #059669;
+  text-decoration: none;
+}
+
+.issue-link:hover {
+  text-decoration: underline;
+}
+
 .issues-cards-stack {
   display: flex;
   flex-direction: column;

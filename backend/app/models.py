@@ -81,6 +81,19 @@ class ScoreResponse(BaseModel):
     candidate_prs: List[ScoredPR]
     summary_markdown: str
 
+class UserProfileData(BaseModel):
+    username: str
+    name: Optional[str] = None
+    avatar_url: Optional[str] = None
+    bio: Optional[str] = None
+    location: Optional[str] = None
+    company: Optional[str] = None
+    public_repos: int = 0
+    followers: int = 0
+    total_stars: int = 0
+    top_languages: List[str] = Field(default_factory=list)
+    html_url: Optional[str] = None
+
 class BeginnerAnalyzeRequest(BaseModel):
     username: str
 
@@ -92,11 +105,14 @@ class MatchedIssue(BaseModel):
     title: str
     description: str
     estimated_hours: str
-    evidence_points: List[str]
-    implementation_steps: List[str]
-    codebase_references: List[Dict[str, str]]
+    evidence_points: List[str] = Field(default_factory=list)
+    implementation_steps: List[str] = Field(default_factory=list)
+    codebase_references: List[Dict[str, str]] = Field(default_factory=list)
+    html_url: Optional[str] = None
 
 class BeginnerAnalyzeResponse(BaseModel):
     username: str
-    analysis_cites: List[Dict[str, str]]
-    recommended_issues: List[MatchedIssue]
+    user_profile: Optional[UserProfileData] = None
+    analysis_cites: List[Dict[str, str]] = Field(default_factory=list)
+    recommended_issues: List[MatchedIssue] = Field(default_factory=list)
+

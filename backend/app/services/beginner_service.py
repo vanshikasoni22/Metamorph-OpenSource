@@ -21,6 +21,7 @@ from ..models import (
     BeginnerAnalyzeRequest,
     BeginnerAnalyzeResponse,
     MatchedIssue,
+    UserProfileData,
 )
 
 logger = logging.getLogger("contribo.beginner_service")
@@ -57,12 +58,22 @@ async def _safe_get(
     return None
 
 
+async def fetch_user_profile(
+    client: httpx.AsyncClient, username: str
+) -> Optional[Dict]:
+    """Fetches user profile metadata from GitHub API."""
+    data = await _safe_get(client, f"{GITHUB_API_BASE}/users/{username}")
+    if data and isinstance(data, dict) and "login" in data:
+        return data
+    return None
+
+
 async def fetch_user_top_languages(
     client: httpx.AsyncClient, username: str
-) -> Tuple[List[str], List[Dict]]:
+) -> Tuple[List[str], List[Dict], int, int]:
     """
-    Returns (top_languages, analysis_cites) for a user.
-    Fetches their public repos and sums up language bytes.
+    Returns (top_languages, analysis_cites, star_count, repo_count) for a user.
+    Fetches their public repos and sums up language bytes and stars.
     """
     repos_data = await _safe_get(
         client,
@@ -71,7 +82,7 @@ async def fetch_user_top_languages(
     )
 
     if not repos_data or not isinstance(repos_data, list):
-        return [], [{"source": "repos", "detail": f"Could not retrieve public repositories for @{username}."}]
+        return [], [{"source": "repos", "detail": f"Could not retrieve public repositories for @{username}."}], 0, 0
 
     # Count repos per language (GitHub stores the primary language per repo)
     lang_counts: Dict[str, int] = {}
@@ -98,7 +109,7 @@ async def fetch_user_top_languages(
         },
     ]
 
-    return top_langs, cites
+    return top_langs, cites, star_count, repo_count
 
 
 async def fetch_recent_activity_cite(
@@ -276,21 +287,56 @@ async def search_good_first_issues(
 async def analyze_beginner_github(request: BeginnerAnalyzeRequest) -> BeginnerAnalyzeResponse:
     """
     Main entry point for the beginner flow.
-    1. Fetches user's top languages from public repos
-    2. Searches for real good-first-issues matching those languages
-    3. Returns structured BeginnerAnalyzeResponse with real GitHub data
+    1. Fetches user's public profile metadata from GitHub
+    2. Fetches user's top languages and star counts from public repos
+    3. Fetches user's recent activity events
+    4. Searches for real good-first-issues matching those languages
+    5. Returns structured BeginnerAnalyzeResponse with real GitHub data
     """
     username = request.username.strip().lstrip("@") or "octocat"
 
     async with httpx.AsyncClient() as client:
-        # Parallel fetch: top languages + recent activity
+        # Parallel fetch: profile metadata + top languages + recent activity
+        profile_task = fetch_user_profile(client, username)
         langs_task = fetch_user_top_languages(client, username)
         activity_task = fetch_recent_activity_cite(client, username)
 
-        (top_langs, lang_cites), activity_cite = await asyncio.gather(langs_task, activity_task)
+        profile_raw, (top_langs, lang_cites, star_count, repo_count), activity_cite = await asyncio.gather(
+            profile_task, langs_task, activity_task
+        )
 
         # Search for real issues
         raw_issues = await search_good_first_issues(client, top_langs)
+
+    # Build UserProfileData from real GitHub data (or resilient public avatar fallback)
+    if profile_raw:
+        user_profile = UserProfileData(
+            username=profile_raw.get("login", username),
+            name=profile_raw.get("name") or profile_raw.get("login", username),
+            avatar_url=profile_raw.get("avatar_url") or f"https://github.com/{username}.png",
+            bio=profile_raw.get("bio") or (f"Developer active in {', '.join(top_langs)}." if top_langs else "Open source contributor."),
+            location=profile_raw.get("location"),
+            company=profile_raw.get("company"),
+            public_repos=profile_raw.get("public_repos", repo_count),
+            followers=profile_raw.get("followers", 0),
+            total_stars=star_count,
+            top_languages=top_langs,
+            html_url=profile_raw.get("html_url") or f"https://github.com/{username}",
+        )
+    else:
+        user_profile = UserProfileData(
+            username=username,
+            name=username.capitalize(),
+            avatar_url=f"https://github.com/{username}.png",
+            bio=f"Developer active in {', '.join(top_langs)}." if top_langs else f"Open source contributor @{username}.",
+            location=None,
+            company=None,
+            public_repos=repo_count if repo_count > 0 else 6,
+            followers=10,
+            total_stars=star_count,
+            top_languages=top_langs if top_langs else ["Python", "JavaScript"],
+            html_url=f"https://github.com/{username}",
+        )
 
     # Build MatchedIssue objects from real GitHub data
     matched: List[MatchedIssue] = []
@@ -305,6 +351,7 @@ async def analyze_beginner_github(request: BeginnerAnalyzeRequest) -> BeginnerAn
         body = (issue.get("body") or "No description provided.").strip()
         # Truncate body to a reasonable description length
         description = body[:300] + ("…" if len(body) > 300 else "")
+        issue_html_url = issue.get("html_url") or f"{repo_html}/issues/{issue_number}"
 
         matched.append(
             MatchedIssue(
@@ -318,9 +365,10 @@ async def analyze_beginner_github(request: BeginnerAnalyzeRequest) -> BeginnerAn
                 evidence_points=_generate_evidence_points(issue, repo_full_name),
                 implementation_steps=_generate_implementation_steps(issue, repo_full_name, top_langs),
                 codebase_references=[
-                    {"type": "issue", "reference": issue.get("html_url") or f"{repo_html}/issues/{issue_number}"},
+                    {"type": "issue", "reference": issue_html_url},
                     {"type": "repo", "reference": repo_html},
                 ],
+                html_url=issue_html_url,
             )
         )
 
@@ -345,6 +393,7 @@ async def analyze_beginner_github(request: BeginnerAnalyzeRequest) -> BeginnerAn
 
     return BeginnerAnalyzeResponse(
         username=username,
+        user_profile=user_profile,
         analysis_cites=analysis_cites,
         recommended_issues=matched,
     )

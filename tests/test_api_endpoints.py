@@ -60,6 +60,9 @@ async def test_beginner_analyze_endpoint():
         assert data["username"] == "octocat"
         assert len(data["recommended_issues"]) >= 2
         assert len(data["analysis_cites"]) >= 2
+        assert data.get("user_profile") is not None
+        assert data["user_profile"]["username"] == "octocat"
+        assert "avatar_url" in data["user_profile"]
 
 @pytest.mark.asyncio
 async def test_maintainer_fetch_malformed_url():
