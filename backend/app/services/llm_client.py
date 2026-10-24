@@ -32,9 +32,14 @@ class LLMTimeoutError(LLMError):
     """Inference request timed out."""
     pass
 
+class LLMModelNotFoundError(LLMError):
+    """Model ID not found on provider (HTTP 404)."""
+    pass
+
 class LLMValidationError(LLMError):
     """Response could not be parsed or validated against the target schema."""
     pass
+
 
 def extract_json_content(raw_text: str) -> str:
     """
@@ -113,9 +118,16 @@ class QwenClient:
                 "Inference credits exhausted on provider (HTTP 402). Check provider billing or plan."
             )
 
+        elif response.status_code == 404:
+            logger.error(f"Model '{self.model}' not found on provider (HTTP 404).")
+            raise LLMModelNotFoundError(
+                f"Model '{self.model}' was not found on provider (HTTP 404). Check QWEN_MODEL name or provider availability."
+            )
+
         elif response.status_code == 429:
             logger.warning("Provider rate limit reached (HTTP 429).")
             raise LLMRateLimitError("Provider rate limit reached (HTTP 429). Retry after backoff.")
+
 
         else:
             logger.error(f"Inference request failed with HTTP {response.status_code}: {response.text}")

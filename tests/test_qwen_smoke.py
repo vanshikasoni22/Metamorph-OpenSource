@@ -8,9 +8,11 @@ from backend.app.services.llm_client import (
     LLMRateLimitError,
     LLMPaymentRequiredError,
     LLMTimeoutError,
+    LLMModelNotFoundError,
     LLMValidationError,
     extract_json_content
 )
+
 from backend.app.services.cache_service import get_llm_cache
 
 class SampleAnalysisSchema(BaseModel):
@@ -124,7 +126,13 @@ async def test_qwen_client_error_handling():
         with pytest.raises(LLMPaymentRequiredError):
             await client.complete_structured("sys", "user", SampleAnalysisSchema, use_cache=False)
 
-        # 4. Timeout
+        # 4. 404 Model not found
+        mock_post.return_value = httpx.Response(status_code=404, text="Model not found", request=httpx.Request("POST", "https://mock.test/v1"))
+        with pytest.raises(LLMModelNotFoundError):
+            await client.complete_structured("sys", "user", SampleAnalysisSchema, use_cache=False)
+
+        # 5. Timeout
         mock_post.side_effect = httpx.TimeoutException("Read timed out")
         with pytest.raises(LLMTimeoutError):
             await client.complete_structured("sys", "user", SampleAnalysisSchema, use_cache=False)
+
