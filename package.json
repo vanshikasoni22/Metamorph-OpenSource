@@ -3,9 +3,7 @@
   "version": "0.1.0",
   "description": "Evidence-driven agent for contributor issue discovery and maintainer PR review",
   "scripts": {
-    "start": "python3 -m uvicorn backend.app.main:app --host 0.0.0.0 --port ${PORT:-8000}",
-    "build": "node scripts/build-frontend.js",
-    "vercel-build": "node scripts/build-frontend.js"
+    "start": "python3 -m uvicorn backend.app.main:app --host 0.0.0.0 --port ${PORT:-8000}"
   },
   "keywords": [
     "open-source",
@@ -18,4 +16,3 @@
   "license": "Apache-2.0",
   "note": "The backend is Python/FastAPI on Render. The frontend static files (HTML/JS/CSS) are deployed to Vercel."
 }
-

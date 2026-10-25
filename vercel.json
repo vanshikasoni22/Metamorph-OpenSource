@@ -1,21 +1,8 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "node scripts/build-frontend.js",
-  "outputDirectory": "dist",
+  "version": 2,
   "cleanUrls": true,
-  "trailingSlash": false,
   "rewrites": [
     { "source": "/beginner", "destination": "/beginner.html" },
     { "source": "/mentor", "destination": "/mentor.html" }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
-      ]
-    }
   ]
 }

@@ -5,7 +5,7 @@
  * 1. window.__ENV.CONTRIB_API_URL
  * 2. <meta name="contrib-api-url" content="..."> in the HTML head
  * 3. localStorage.getItem("CONTRIB_API_URL")
- * 4. Default: "http://localhost:8000"
+ * 4. Default: "https://metamorph-opensource-2.onrender.com"
  */
 
 (function () {
@@ -13,16 +13,18 @@
   const metaUrl = metaTag ? metaTag.getAttribute('content') : null;
 
   // Smart default:
-  // 1. When hosted on the web (Render, custom domain) or unified localhost:8000, use window.location.origin
-  // 2. When running on an independent frontend dev server (e.g. Live Server on port 5500), use http://localhost:8000
-  // 3. When opened via file://, use http://localhost:8000
-  let defaultApiUrl = 'http://localhost:8000';
-  if (typeof window !== 'undefined' && window.location && window.location.protocol.startsWith('http')) {
-    const isSeparateDevPort = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') &&
-                              window.location.port &&
-                              window.location.port !== '8000';
-    if (!isSeparateDevPort) {
+  // 1. On localhost / local dev: use http://127.0.0.1:8000
+  // 2. On Render backend (when served by FastAPI): use window.location.origin
+  // 3. On Vercel or any other frontend host: use live Render backend URL
+  let defaultApiUrl = 'https://metamorph-opensource-2.onrender.com';
+  if (typeof window !== 'undefined' && window.location) {
+    const host = window.location.hostname || '';
+    if (host === 'localhost' || host === '127.0.0.1') {
+      defaultApiUrl = 'http://127.0.0.1:8000';
+    } else if (host.includes('onrender.com')) {
       defaultApiUrl = window.location.origin;
+    } else {
+      defaultApiUrl = 'https://metamorph-opensource-2.onrender.com';
     }
   }
 
@@ -33,5 +35,5 @@
     localStorage.getItem('CONTRIB_API_URL') ||
     defaultApiUrl;
 
-  console.log(`[Contrib] API URL initialized: ${window.CONTRIB_API_URL}`);
+  console.log('[Contrib Config] Active API URL:', window.CONTRIB_API_URL);
 })();
