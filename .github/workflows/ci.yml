@@ -48,4 +48,5 @@ jobs:
           test -f mentor.html   && echo "✓ mentor.html"
           test -f config.js     && echo "✓ config.js"
           test -f styles.css    && echo "✓ styles.css"
+          test -f home.js      && echo "✓ home.js"
           test -f vercel.json   && echo "✓ vercel.json"
