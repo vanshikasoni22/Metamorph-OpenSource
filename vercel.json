@@ -1,6 +1,5 @@
 {
-  "buildCommand": "node scripts/build-frontend.js",
-  "outputDirectory": "dist",
+  "version": 2,
   "cleanUrls": true,
   "rewrites": [
     { "source": "/beginner", "destination": "/beginner.html" },

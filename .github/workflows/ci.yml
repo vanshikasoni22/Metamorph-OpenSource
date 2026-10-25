@@ -50,12 +50,3 @@ jobs:
           test -f styles.css    && echo "✓ styles.css"
           test -f home.js      && echo "✓ home.js"
           test -f vercel.json   && echo "✓ vercel.json"
-
-      - name: Build frontend bundle (dist)
-        run: |
-          npm run build
-          test -f dist/index.html    && echo "✓ dist/index.html"
-          test -f dist/beginner.html && echo "✓ dist/beginner.html"
-          test -f dist/mentor.html   && echo "✓ dist/mentor.html"
-          test -f dist/home.js       && echo "✓ dist/home.js"
-          test -f dist/styles.css    && echo "✓ dist/styles.css"
