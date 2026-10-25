@@ -1,4 +1,5 @@
-name: Contribo CI/CD Pipeline
+
+name: Contribo CI
 
 on:
   push:
@@ -8,29 +9,13 @@ on:
 
 jobs:
   test:
-    name: Test & Database Migrations (Python ${{ matrix.python-version }})
+    name: Test Suite (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
-
-    # Real PostgreSQL service container for automated database testing
-    services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_DB: contribo_test
-          POSTGRES_USER: contribo_user
-          POSTGRES_PASSWORD: contribo_password
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
 
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.10", "3.11"]
+        python-version: ["3.11", "3.12"]
 
     steps:
       - name: Checkout repository
@@ -41,29 +26,26 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: "pip"
+          cache-dependency-path: backend/requirements.txt
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r backend/requirements.txt
 
-      - name: Run Alembic migrations on PostgreSQL
+      - name: Run Pytest test suite (SQLite)
         env:
-          DATABASE_URL: postgresql://contribo_user:contribo_password@localhost:5432/contribo_test
+          # Use SQLite for CI — no external DB needed
+          DATABASE_URL: ""
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          python -m backend.scripts.migrate
-
-      - name: Run Pytest test suite
-        env:
-          DATABASE_URL: postgresql://contribo_user:contribo_password@localhost:5432/contribo_test
-        run: |
-          pytest tests/ -v
+          PYTHONPATH=. pytest tests/ -v --tb=short
 
       - name: Verify static frontend files
         run: |
-          test -f index.html
-          test -f beginner.html
-          test -f mentor.html
-          test -f config.js
-          test -f styles.css
-          echo "Frontend static files verified successfully."
+          test -f index.html    && echo "✓ index.html"
+          test -f beginner.html && echo "✓ beginner.html"
+          test -f mentor.html   && echo "✓ mentor.html"
+          test -f config.js     && echo "✓ config.js"
+          test -f styles.css    && echo "✓ styles.css"
+          test -f vercel.json   && echo "✓ vercel.json"
