@@ -4,7 +4,8 @@
   "description": "Evidence-driven agent for contributor issue discovery and maintainer PR review",
   "scripts": {
     "start": "python3 -m uvicorn backend.app.main:app --host 0.0.0.0 --port ${PORT:-8000}",
-    "build": "pip install -r backend/requirements.txt"
+    "build": "pip install -r backend/requirements.txt",
+    "vercel-build": "node scripts/inject-api-url.js"
   },
   "keywords": [
     "open-source",
@@ -15,5 +16,6 @@
   ],
   "author": "",
   "license": "Apache-2.0",
-  "note": "The backend is Python/FastAPI. See render.yaml and backend/requirements.txt. This package.json exists for project metadata only."
+  "note": "The backend is Python/FastAPI on Render. The frontend static files (HTML/JS/CSS) are deployed to Vercel."
 }
+
