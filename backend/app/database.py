@@ -165,15 +165,20 @@ def get_connection():
 
 def init_db():
     """Creates database tables and seeds sample data."""
-    if _USE_SQLALCHEMY and engine and Base:
+    global engine, SessionLocal
+    if _USE_SQLALCHEMY and Base:
         try:
+            connect_args = {}
+            if DATABASE_URL.startswith("sqlite"):
+                connect_args = {"check_same_thread": False}
+            engine = create_engine(DATABASE_URL, connect_args=connect_args, pool_pre_ping=True)
+            SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
             Base.metadata.create_all(bind=engine)
             seed_sample_cache()
-            return
         except Exception as e:
             logger.warning(f"SQLAlchemy table creation encountered an error: {e}. Falling back to sqlite3.")
 
-    # SQLite fallback
+    # SQLite table creation (ensures raw connection callers have all tables)
     with get_connection() as conn:
         conn.execute("""
             CREATE TABLE IF NOT EXISTS cache_entries (
@@ -220,6 +225,20 @@ def init_db():
                 username TEXT PRIMARY KEY,
                 profile_json TEXT NOT NULL,
                 updated_at REAL NOT NULL
+            )
+        """)
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS beginner_plans (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT NOT NULL,
+                issue_url TEXT NOT NULL,
+                repo TEXT NOT NULL,
+                issue_number INTEGER NOT NULL,
+                issue_title TEXT NOT NULL,
+                plan_json TEXT NOT NULL,
+                created_at REAL NOT NULL,
+                updated_at REAL NOT NULL,
+                UNIQUE(username, issue_url)
             )
         """)
 

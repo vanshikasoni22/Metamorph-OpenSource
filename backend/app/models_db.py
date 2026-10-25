@@ -158,3 +158,27 @@ class UserProfileRecord(Base):
         return f"<UserProfileRecord user={self.username}>"
 
 
+class BeginnerPlanRecord(Base):
+    """
+    Stores generated beginner plan, tasks, weekly schedule, and task progress.
+    """
+    __tablename__ = "beginner_plans"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    username = Column(String(100), nullable=False, index=True)
+    issue_url = Column(String(500), nullable=False, index=True)
+    repo = Column(String(255), nullable=False)
+    issue_number = Column(Integer, nullable=False)
+    issue_title = Column(String(500), nullable=False)
+    plan_json = Column(Text, nullable=False)
+    created_at = Column(Float, nullable=False, default=time.time)
+    updated_at = Column(Float, nullable=False, default=time.time)
+
+    __table_args__ = (
+        Index("ix_beginner_plans_user_issue", "username", "issue_url", unique=True),
+    )
+
+    def __repr__(self):
+        return f"<BeginnerPlanRecord user={self.username} issue={self.repo}#{self.issue_number}>"
+
+

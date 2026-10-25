@@ -1,18 +1,27 @@
 import os
+import logging
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from ..models import (
     BeginnerAnalyzeRequest,
     BeginnerAnalyzeResponse,
     BeginnerProfileInput,
+    PlanRequest,
+    BeginnerPlan,
+    PlanTask,
+    TaskPatchRequest,
+    TaskPatchResponse,
 )
 from ..services.beginner_service import analyze_beginner_github
+from ..services.plan_service import generate_beginner_plan
+from ..services.llm_client import LLMPaymentRequiredError, LLMError
 from ..services.history_service import (
     save_beginner_issue,
     get_saved_beginner_issues,
     delete_saved_beginner_issue,
     save_user_profile,
-    get_user_profile
+    get_user_profile,
+    update_beginner_task,
 )
 
 from pydantic import BaseModel
@@ -90,4 +99,71 @@ async def save_profile(profile_input: BeginnerProfileInput):
     if not saved:
         raise HTTPException(status_code=500, detail="Could not save profile to database.")
     return {"status": "saved", "profile": profile_dict}
+
+
+@router.post("/plan", response_model=BeginnerPlan)
+async def create_beginner_plan(request: PlanRequest):
+    """
+    Generates a personalised task plan (CG-01, CG-02, CG-03) for a beginner
+    who has selected an issue.
+    """
+    try:
+        return await generate_beginner_plan(request=request)
+    except LLMPaymentRequiredError as e:
+        raise HTTPException(
+            status_code=402,
+            detail=f"AI provider billing or credit limit reached: {str(e)}"
+        )
+    except LLMError as e:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Plan unavailable, please try again: {str(e)}"
+        )
+    except Exception as e:
+        logger.exception("Unexpected error in plan generation")
+        raise HTTPException(
+            status_code=500,
+            detail=f"An error occurred while generating the plan: {str(e)}"
+        )
+
+
+@router.patch("/tasks/{task_id}", response_model=TaskPatchResponse)
+async def patch_beginner_task(task_id: str, request: TaskPatchRequest):
+    """
+    Rule 1: Updates task_status and optional blocker_note of a single task.
+    Rejects any request that attempts to set verification_status.
+    """
+    if request.verification_status is not None:
+        raise HTTPException(
+            status_code=400,
+            detail="verification_status cannot be modified by the user; it is set only by the system upon verification"
+        )
+
+    allowed_statuses = {"NOT_STARTED", "IN_PROGRESS", "BLOCKED", "COMPLETED"}
+    if request.task_status is not None and request.task_status not in allowed_statuses:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid task_status '{request.task_status}'. Allowed values: {', '.join(sorted(allowed_statuses))}"
+        )
+
+    result = update_beginner_task(
+        username=request.username,
+        issue_url=request.issue_url,
+        task_id=task_id,
+        task_status=request.task_status,
+        blocker_note=request.blocker_note,
+    )
+    if not result:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Task '{task_id}' not found for user '{request.username}' and issue '{request.issue_url}'"
+        )
+
+    return TaskPatchResponse(
+        status="ok",
+        task=PlanTask(**result["task"]),
+        completed_count=result["completed_count"],
+        verified_count=result["verified_count"],
+        total_tasks=result["total_tasks"],
+    )
 

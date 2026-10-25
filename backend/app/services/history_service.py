@@ -419,3 +419,163 @@ def get_user_profile(username: str) -> Optional[Dict[str, Any]]:
 
     return None
 
+
+def save_beginner_plan(username: str, issue_url: str, plan_dict: Dict[str, Any]) -> bool:
+    """
+    Saves or updates a generated BeginnerPlan in PostgreSQL / SQLite.
+    """
+    clean_user = username.strip()
+    clean_url = issue_url.strip()
+    if not clean_user or not clean_url:
+        return False
+
+    now = time.time()
+    repo = plan_dict.get("repo") or "unknown/repo"
+    if repo == "unknown/repo" and "github.com/" in clean_url:
+        parts = clean_url.rstrip("/").split("/")
+        if len(parts) >= 4:
+            repo = f"{parts[-4]}/{parts[-3]}"
+    issue_number = plan_dict.get("issue_number") or 0
+    issue_title = plan_dict.get("issue_title") or "Unknown Issue"
+    plan_json = json.dumps(plan_dict)
+
+    if _USE_SQLALCHEMY and SessionLocal:
+        try:
+            from ..models_db import BeginnerPlanRecord
+            with SessionLocal() as session:
+                existing = session.query(BeginnerPlanRecord).filter(
+                    BeginnerPlanRecord.username == clean_user,
+                    BeginnerPlanRecord.issue_url == clean_url,
+                ).first()
+                if existing:
+                    existing.repo = repo
+                    existing.issue_number = issue_number
+                    existing.issue_title = issue_title
+                    existing.plan_json = plan_json
+                    existing.updated_at = now
+                else:
+                    new_rec = BeginnerPlanRecord(
+                        username=clean_user,
+                        issue_url=clean_url,
+                        repo=repo,
+                        issue_number=issue_number,
+                        issue_title=issue_title,
+                        plan_json=plan_json,
+                        created_at=now,
+                        updated_at=now,
+                    )
+                    session.add(new_rec)
+                session.commit()
+                return True
+        except Exception as e:
+            logger.warning(f"Failed to save plan via SQLAlchemy: {e}. Falling back to SQLite.")
+
+    # SQLite fallback
+    try:
+        with get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                INSERT OR REPLACE INTO beginner_plans (
+                    username, issue_url, repo, issue_number, issue_title, plan_json, created_at, updated_at
+                ) VALUES (
+                    ?, ?, ?, ?, ?, ?,
+                    COALESCE((SELECT created_at FROM beginner_plans WHERE username = ? AND issue_url = ?), ?),
+                    ?
+                )
+                """,
+                (clean_user, clean_url, repo, issue_number, issue_title, plan_json, clean_user, clean_url, now, now)
+            )
+            conn.commit()
+            return True
+    except Exception as e:
+        logger.error(f"Failed to save plan to SQLite: {e}")
+        return False
+
+
+def get_beginner_plan(username: str, issue_url: str) -> Optional[Dict[str, Any]]:
+    """
+    Retrieves a saved BeginnerPlan for a specific user and issue.
+    """
+    clean_user = username.strip()
+    clean_url = issue_url.strip()
+    if not clean_user or not clean_url:
+        return None
+
+    if _USE_SQLALCHEMY and SessionLocal:
+        try:
+            from ..models_db import BeginnerPlanRecord
+            with SessionLocal() as session:
+                rec = session.query(BeginnerPlanRecord).filter(
+                    BeginnerPlanRecord.username == clean_user,
+                    BeginnerPlanRecord.issue_url == clean_url,
+                ).first()
+                if rec and rec.plan_json:
+                    return json.loads(rec.plan_json)
+        except Exception as e:
+            logger.warning(f"Could not load plan via SQLAlchemy: {e}")
+
+    # SQLite fallback
+    try:
+        with get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT plan_json FROM beginner_plans WHERE username = ? AND issue_url = ?",
+                (clean_user, clean_url)
+            )
+            row = cursor.fetchone()
+            if row and row["plan_json"]:
+                return json.loads(row["plan_json"])
+    except Exception as e:
+        logger.error(f"Failed to load plan from SQLite: {e}")
+
+    return None
+
+
+def update_beginner_task(
+    username: str,
+    issue_url: str,
+    task_id: str,
+    task_status: Optional[str] = None,
+    blocker_note: Optional[str] = None,
+) -> Optional[Dict[str, Any]]:
+    """
+    Updates the task_status and optional blocker_note of a single task in a saved plan.
+    Never modifies verification_status (enforced in caller).
+    """
+    plan_dict = get_beginner_plan(username, issue_url)
+    if not plan_dict:
+        return None
+
+    tasks = plan_dict.get("tasks", [])
+    target_task = None
+    for t in tasks:
+        if t.get("task_id") == task_id:
+            target_task = t
+            if task_status is not None:
+                target_task["task_status"] = task_status
+            if blocker_note is not None:
+                target_task["blocker_note"] = blocker_note
+            break
+
+    if not target_task:
+        return None
+
+    # Recalculate progress counters
+    completed = sum(1 for t in tasks if t.get("task_status") == "COMPLETED")
+    verified = sum(1 for t in tasks if t.get("verification_status") == "VERIFIED")
+    plan_dict["completed_count"] = completed
+    plan_dict["verified_count"] = verified
+    plan_dict["total_tasks"] = len(tasks)
+
+    # Save back
+    save_beginner_plan(username, issue_url, plan_dict)
+
+    return {
+        "task": target_task,
+        "plan": plan_dict,
+        "completed_count": completed,
+        "verified_count": verified,
+        "total_tasks": len(tasks),
+    }
+

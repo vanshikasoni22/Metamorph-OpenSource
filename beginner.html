@@ -78,7 +78,7 @@
                 <div class="input-action-row">
                   <div class="input-prefix-box">
                     <span class="prefix-at">@</span>
-                    <input type="text" id="gh-username-input" class="mono-input" placeholder="octocat" value="octocat" required autocomplete="off" spellcheck="false">
+                    <input type="text" id="gh-username-input" class="mono-input" placeholder="vanshikasoni22" value="vanshikasoni22" required autocomplete="off" spellcheck="false">
                   </div>
                   <button type="submit" class="btn btn-black" id="btn-analyze-github">
                     Analyze my GitHub <span class="arrow">→</span>
@@ -432,70 +432,102 @@
       </div>
 
       <!-- STEP 3: Get your Plan (Implementation roadmap) -->
+      <!-- STEP 3: Get your Plan (Implementation roadmap) -->
       <div class="step-view" id="view-step-3" style="display: none;">
         <div class="step-view-header">
           <div>
             <h1 class="main-heading">Get your plan</h1>
             <p class="main-subheading">
-              An implementation checklist, learning references, and the evidence Contrib will verify when you submit your PR.
+              An evidence-backed implementation plan with concrete tasks, weekly scheduling, and verified progress tracking.
             </p>
           </div>
-          <button class="btn btn-outline btn-sm" id="btn-back-to-step2">← Choose another issue</button>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn btn-outline btn-sm" id="btn-regenerate-plan">↻ Regenerate Plan</button>
+            <button class="btn btn-outline btn-sm" id="btn-back-to-step2">← Choose another issue</button>
+          </div>
         </div>
 
-        <div class="plan-grid">
-          <div class="plan-card-left">
-            <div class="plan-banner">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <span class="repo-badge">pallets/flask #5412</span>
-                <a id="plan-issue-link" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm">View Issue on GitHub ↗</a>
-              </div>
-              <h3 class="plan-issue-title" id="plan-title">Add exponential retry backoff to async webhook dispatch</h3>
-            </div>
+        <!-- Loading State -->
+        <div id="plan-loading-state" style="display: none; text-align: center; padding: 60px 20px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; margin-bottom: 24px;">
+          <div class="spinner" style="margin: 0 auto 16px auto; width: 40px; height: 40px; border: 4px solid #f1f5f9; border-top-color: #10b981; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+          <h3 style="font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Generating your personalised plan with Qwen...</h3>
+          <p style="font-size: 14px; color: #64748b; max-width: 500px; margin: 0 auto;">
+            Analyzing issue requirements, validating repository evidence, scaling your weekly schedule, and preparing your check-in table.
+          </p>
+        </div>
 
-            <div class="checklist-box">
-              <div class="checklist-title-row">
-                <h4 class="box-title">Implementation Checklist</h4>
-                <span class="checklist-status" id="checklist-counter">0 of 4 completed</span>
-              </div>
-              <div class="checklist-group">
-                <label class="check-row">
-                  <input type="checkbox" class="plan-cb">
-                  <span>1. Fork, clone & install dependencies (<code>pip install -e ".[dev]"</code>)</span>
-                </label>
-                <label class="check-row">
-                  <input type="checkbox" class="plan-cb">
-                  <span>2. Locate <code>src/flask/dispatcher.py:84</code> and implement exponential delay loop</span>
-                </label>
-                <label class="check-row">
-                  <input type="checkbox" class="plan-cb">
-                  <span>3. Add unit test assertions in <code>tests/test_dispatcher.py:42-71</code></span>
-                </label>
-                <label class="check-row">
-                  <input type="checkbox" class="plan-cb">
-                  <span>4. Verify linters pass (<code>ruff check .</code> and <code>pytest</code>)</span>
-                </label>
+        <!-- Error State -->
+        <div id="plan-error-state" style="display: none; padding: 24px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 16px; margin-bottom: 24px;">
+          <div style="display: flex; align-items: flex-start; gap: 12px;">
+            <span style="font-size: 24px;">⚠️</span>
+            <div style="flex: 1;">
+              <h3 style="font-size: 16px; font-weight: 700; color: #991b1b; margin-bottom: 6px;" id="plan-error-title">Plan Unavailable</h3>
+              <p style="font-size: 13.5px; color: #b91c1c; margin-bottom: 14px;" id="plan-error-message">Could not load the plan.</p>
+              <div style="display: flex; gap: 10px;">
+                <button class="btn btn-sm btn-outline" id="btn-plan-retry" style="background: #ffffff;">Try Again</button>
+                <button class="btn btn-sm btn-outline" id="btn-plan-back-issues" style="background: #ffffff;">Back to Issues</button>
               </div>
             </div>
           </div>
+        </div>
 
-          <div class="plan-card-right">
-            <div class="info-card">
-              <h3 class="info-card-title">Codebase References</h3>
-              <ul class="reads-list">
-                <li class="reads-item">
-                  <span class="code-pill">code</span>
-                  <span class="reads-desc"><code>src/flask/dispatcher.py:84</code></span>
-                </li>
-                <li class="reads-item">
-                  <span class="code-pill">tests</span>
-                  <span class="reads-desc"><code>tests/test_dispatcher.py:42-71</code></span>
-                </li>
-              </ul>
-              <div class="info-card-divider"></div>
-              <p class="info-card-footer">
-                <strong>After the PR:</strong> Contrib verifies test assertions, module boundary confinement, and clean CI passes.
-              </p>
+        <!-- Empty State -->
+        <div id="plan-empty-state" style="display: none; text-align: center; padding: 48px 20px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; margin-bottom: 24px;">
+          <p style="font-size: 15px; color: #64748b;">No tasks available for this issue.</p>
+        </div>
+
+        <!-- Optimistic Patch Error Banner (Toast) -->
+        <div id="plan-patch-error" style="display: none; padding: 12px 16px; background: #fff1f2; border: 1px solid #fda4af; border-radius: 8px; margin-bottom: 16px; color: #9f1239; font-size: 13px; font-weight: 600;">
+        </div>
+
+        <!-- Content State -->
+        <div id="plan-content-state" style="display: none;">
+          <!-- Plan Banner -->
+          <div class="plan-banner" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 24px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(15,23,42,0.03);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span class="repo-badge" id="plan-repo-badge">pallets/flask #5412</span>
+                <span class="fit-pill" id="plan-model-badge">AI Plan</span>
+              </div>
+              <a id="plan-issue-link" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm">View on GitHub ↗</a>
+            </div>
+            <h2 class="plan-issue-title" id="plan-title" style="font-size: 20px; font-weight: 800; color: #0f172a; margin-bottom: 8px;"></h2>
+            <div style="font-size: 12.5px; color: #64748b;" id="plan-profile-summary"></div>
+          </div>
+
+          <!-- First Approach Note -->
+          <div id="plan-first-approach-card" style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px;">
+            <div style="font-size: 12px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">💡 Your First Approach</div>
+            <div id="plan-first-approach-text" style="font-size: 13.5px; color: #14532d; line-height: 1.5;"></div>
+          </div>
+
+          <!-- Weekly Schedule Section (CG-09, Rule 4) -->
+          <div style="margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <h3 style="font-size: 16px; font-weight: 800; color: #0f172a;">Weekly Schedule</h3>
+              <span style="font-size: 12px; color: #64748b;" id="plan-speed-indicator"></span>
+            </div>
+            <div id="plan-schedule-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px;">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- Check-in Table & To-Do List (CG-10, Rule 7) -->
+          <div class="checklist-box" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 24px; box-shadow: 0 2px 6px rgba(15,23,42,0.03);">
+            <div class="checklist-title-row" style="margin-bottom: 18px; flex-wrap: wrap; gap: 8px;">
+              <div>
+                <h3 class="box-title" style="font-size: 16px; margin-bottom: 4px;">Implementation Checklist & Check-in Table</h3>
+                <div style="font-size: 12px; color: #64748b;">
+                  Track self-reported completion separately from verified checks.
+                </div>
+              </div>
+              <span class="checklist-status" id="checklist-counter" style="font-size: 12.5px; font-weight: 700; padding: 4px 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+                0 of 0 completed (self-reported) • 0 verified
+              </span>
+            </div>
+
+            <div id="plan-tasks-list" class="checklist-group" style="gap: 16px;">
+              <!-- Rendered dynamically by beginner.js -->
             </div>
           </div>
         </div>
