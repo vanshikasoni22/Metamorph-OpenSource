@@ -1,0 +1,9 @@
+backend/
+alembic/
+alembic.ini
+tests/
+contrib_cache.db
+scripts/
+render.yaml
+*.db
+*.sqlite3
