@@ -1,7 +1,7 @@
 {
-  "framework": null,
-  "buildCommand": "node scripts/inject-api-url.js",
-  "outputDirectory": ".",
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "node scripts/build-frontend.js",
+  "outputDirectory": "dist",
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [

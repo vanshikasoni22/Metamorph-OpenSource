@@ -4,8 +4,8 @@
   "description": "Evidence-driven agent for contributor issue discovery and maintainer PR review",
   "scripts": {
     "start": "python3 -m uvicorn backend.app.main:app --host 0.0.0.0 --port ${PORT:-8000}",
-    "build": "node scripts/inject-api-url.js",
-    "vercel-build": "node scripts/inject-api-url.js"
+    "build": "node scripts/build-frontend.js",
+    "vercel-build": "node scripts/build-frontend.js"
   },
   "keywords": [
     "open-source",
