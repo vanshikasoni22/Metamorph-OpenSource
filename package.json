@@ -2,6 +2,9 @@
   "name": "contrib",
   "version": "0.1.0",
   "description": "Evidence-driven agent for contributor issue discovery and maintainer PR review",
+  "scripts": {
+    "build": "node scripts/build-frontend.js"
+  },
   "keywords": [
     "open-source",
     "evidence-driven",
