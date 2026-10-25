@@ -1,26 +1,11 @@
 {
   "version": 2,
-  "buildCommand": "npm run vercel-build",
+  "buildCommand": "node scripts/inject-api-url.js",
   "outputDirectory": ".",
-  "cleanUrls": true,
-  "trailingSlash": false,
-  "routes": [
-    {
-      "src": "/(index|beginner|mentor)\\.html",
-      "dest": "/$1.html"
-    },
-    {
-      "src": "/(index|beginner|mentor)",
-      "dest": "/$1.html"
-    },
-    {
-      "src": "/",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/(.*\\.(js|css|png|jpg|svg|ico|woff2?))",
-      "dest": "/$1"
-    }
+  "rewrites": [
+    { "source": "/beginner", "destination": "/beginner.html" },
+    { "source": "/mentor", "destination": "/mentor.html" },
+    { "source": "/", "destination": "/index.html" }
   ],
   "headers": [
     {
